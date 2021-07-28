@@ -1,4 +1,13 @@
 <!DOCTYPE html>
 <html lang="en-US">
-    <h1>Select File(s) to upload.</h1>
+    <h1>Select image to upload.</h1>
+    <form action="/" method="post" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <input type="submit" name="submit">
+    </form>
+    <h1>Enter image url</h1>
+    <form action="/" method="post" enctype="multipart/form-data">
+        <input type="text" name="url" autocomplete="off">
+        <input type="submit" name="submit">
+    </form>
 </html>
