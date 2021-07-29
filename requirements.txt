@@ -1,5 +1,5 @@
 pip==21.2.1
-flask==2.0.0
+flask==2.0.1
 numpy==1.21.1
 matplotlib==3.4.2
 imutils==0.5.4
