@@ -8,7 +8,6 @@ from skimage.filters import threshold_otsu, threshold_local
 from PIL import Image
 import os
 import numpy as np
-import imutils
 from skimage.color import rgb2gray
 from skimage.feature import peak_local_max
 from skimage.segmentation import watershed
