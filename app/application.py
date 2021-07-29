@@ -53,9 +53,8 @@ def image_to_contours_list(image, clear_background=True, block_size=35, min_rati
             continue
         mask = np.zeros(gray_shape, dtype="uint8")
         mask[labels == label] = 255
-        cnts = cv2.findContours(
+        cnts, hierarchy = cv2.findContours(
             mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        cnts = imutils.grab_contours(cnts)
         c = max(cnts, key=cv2.contourArea)
         all_contours.append(c)
     # Remove outliers in contour area
