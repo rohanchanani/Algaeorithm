@@ -13,14 +13,11 @@ from skimage.feature import peak_local_max
 from skimage.segmentation import watershed
 from scipy import ndimage, stats
 import math
-#import cv2
+import cv2
 
 app = Flask(__name__)
-@app.route("/")
-def hello_world():
-    return "Hello from flask"
 
-"""def threshold_image(image, clear_background=True, block_size=35):
+def threshold_image(image, clear_background=True, block_size=35):
     if not image.any():
         return
     if len(image.shape) > 2:
@@ -106,26 +103,26 @@ def count_cells(image, clear_background=True, block_size=35, min_ratio=0.1, max_
     return len(all_contours)
 
 
-@app.route('/', methods=["GET", "POST"])
-def index():
-    if request.method == "GET":
-        return render_template("index.html")
-    else:
-        if request.form.get("url"):
-            try:
-                img = io.imread(request.form.get("url"))
-            except:
-                return "Please enter a valid url"
-        elif 'file' not in request.files:
-            return "No file"
-        else:
-            file = request.files["file"]
-            try:
-                img = np.asarray(Image.open(BytesIO(file.read())))
-            except:
-                return "Invalid file"
+@app.route('/')
+def index_get():
+    return render_template("index.html")
+@app.route('/', methods=["POST"])
+def index_post():
+    if request.form.get("url"):
         try:
-            num_cells = count_cells(img)
+            img = io.imread(request.form.get("url"))
+        except:
+            return "Please enter a valid url"
+    elif 'file' not in request.files:
+        return "No file"
+    else:
+        file = request.files["file"]
+        try:
+            img = np.asarray(Image.open(BytesIO(file.read())))
         except:
             return "Invalid file"
-        return render_template("results.html", num_cells=num_cells)"""
+    try:
+        num_cells = count_cells(img)
+    except:
+        return "Invalid file"
+    return render_template("results.html", num_cells=num_cells)
