@@ -13,12 +13,14 @@ from skimage.feature import peak_local_max
 from skimage.segmentation import watershed
 from scipy import ndimage, stats
 import math
-import cv2
+#import cv2
 
 app = Flask(__name__)
+@app.route("/")
+def hello_world():
+    return "Hello from flask"
 
-
-def threshold_image(image, clear_background=True, block_size=35):
+"""def threshold_image(image, clear_background=True, block_size=35):
     if not image.any():
         return
     if len(image.shape) > 2:
@@ -126,4 +128,4 @@ def index():
             num_cells = count_cells(img)
         except:
             return "Invalid file"
-        return render_template("results.html", num_cells=num_cells)
+        return render_template("results.html", num_cells=num_cells)"""
