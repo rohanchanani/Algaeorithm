@@ -128,3 +128,6 @@ def index_post():
             except:
                 img_counts[filename] = "Invalid File"
         return img_counts
+
+def test():
+	pass
