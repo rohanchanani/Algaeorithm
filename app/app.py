@@ -14,6 +14,7 @@ from skimage.segmentation import watershed
 from scipy import ndimage, stats
 import math
 import cv2
+import json
 
 app = Flask(__name__)
 
@@ -113,16 +114,17 @@ def index_post():
             img = io.imread(request.form.get("url"))
         except:
             return "Please enter a valid url"
-    elif 'file' not in request.files:
+    if not request.files:
         return "No file"
     else:
-        file = request.files["file"]
-        try:
-            img = np.asarray(Image.open(BytesIO(file.read())))
-        except:
-            return "Invalid file"
-    try:
-        num_cells = count_cells(img)
-    except:
-        return "Invalid file"
-    return render_template("results.html", num_cells=num_cells)
+        img_counts = {}
+        for filename, file in request.files.items():
+            try:
+                img = np.asarray(Image.open(BytesIO(file.read())))
+            except:
+                img_counts[filename] = "Invalid File"
+            try:
+                img_counts[filename] = count_cells(img)
+            except:
+                img_counts[filename] = "Invalid File"
+        return img_counts

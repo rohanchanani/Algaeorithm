@@ -1,1 +1,8 @@
-<p>There are {{num_cells}} cells in this picture.</p>
+<!DOCTYPE html>
+<html lang="en-US">
+    <ol>
+        {% for filename, count in img_counts.items() %}
+        <li>There are {{ count }} cells in {{ filename }}.</li>
+        {% endif %}
+    </ol>    
+</html>

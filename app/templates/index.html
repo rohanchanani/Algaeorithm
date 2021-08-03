@@ -1,13 +1,49 @@
 <!DOCTYPE html>
 <html lang="en-US">
-    <h1>Select image to upload.</h1>
-    <form action="/" method="post" enctype="multipart/form-data">
-        <input type="file" name="file">
-        <input type="submit" name="submit">
-    </form>
-    <h1>Enter image url</h1>
-    <form action="/" method="post" enctype="multipart/form-data">
-        <input type="text" name="url" autocomplete="off">
-        <input type="submit" name="submit">
-    </form>
+    <input type="file" id="staging" multiple>
+    <button type="button" onclick="addFileToList()">Add File(s)</button>
+    <ol id="fileList"></ol>
+    <button type="button" onclick="sendFiles()">Submit Files</button>
+    <ol id="responseList"></ol>
+    <script
+    src="https://code.jquery.com/jquery-3.6.0.js"
+    integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+    crossorigin="anonymous"></script>
+    <script>
+        let fileList = document.getElementById("fileList");
+        let fileInput = new FormData();
+        const addFileToList = () => {
+            const stagingInput = document.getElementById("staging");
+            if (stagingInput.files.length===0) {
+                alert("No files selected");
+            }
+            else {
+                for (let newFile of stagingInput.files) {
+                    fileInput.append(newFile.name, newFile);
+                    let listItem = document.createElement("li");
+                    listItem.innerHTML = newFile.name;
+                    fileList.appendChild(listItem);
+                }
+            }
+        }
+        const sendFiles = () => {
+            let request = new XMLHttpRequest();
+            request.onreadystatechange = function() {
+                if (request.readyState == 4) {
+                    console.log(request.response);
+                    let responseList = document.getElementById("responseList");
+                    responseList.innerHTML = "";
+                    let parsedResponse = JSON.parse(request.response);
+                    console.log(parsedResponse);
+                    for (let key of Object.keys(parsedResponse)) {
+                        let imageCount = document.createElement("li");
+                        imageCount.innerHTML = `There are ${parsedResponse[key]} cells in ${key}.`;
+                        responseList.appendChild(imageCount);
+                    }
+                }
+            }
+            request.open("POST", "/");
+            request.send(fileInput);
+        } 
+    </script>    
 </html>
