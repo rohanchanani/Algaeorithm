@@ -4,7 +4,7 @@
     <button type="button" onclick="addFileToList()">Add File(s)</button>
     <ol id="fileList"></ol>
     <button type="button" onclick="sendFiles()">Submit Files</button>
-    <ol id="responseList"></ol>
+    <ul id="responseList"></ul>
     <script
     src="https://code.jquery.com/jquery-3.6.0.js"
     integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
@@ -30,20 +30,76 @@
             let request = new XMLHttpRequest();
             request.onreadystatechange = function() {
                 if (request.readyState == 4) {
-                    console.log(request.response);
                     let responseList = document.getElementById("responseList");
                     responseList.innerHTML = "";
                     let parsedResponse = JSON.parse(request.response);
-                    console.log(parsedResponse);
                     for (let key of Object.keys(parsedResponse)) {
                         let imageCount = document.createElement("li");
-                        imageCount.innerHTML = `There are ${parsedResponse[key]} cells in ${key}.`;
+                        let hiddenName = document.createElement("p");
+                        hiddenName.setAttribute("style", "display: none;");
+                        hiddenName.innerHTML = key;
+                        imageCount.appendChild(hiddenName);
+                        let countText = document.createElement("p");
+                        countText.innerHTML = `There are ${parsedResponse[key]} cells in ${key}.`;
+                        imageCount.appendChild(countText);
+                        for (let displayMethod of ["Image", "Outlines", "Circles"]) {
+                            let getImageButton = document.createElement("button");
+                            getImageButton.setAttribute("type", "button");
+                            getImageButton.setAttribute("onclick", `show${displayMethod}(this)`);
+                            let imageButtonText = document.createElement("p");
+                            imageButtonText.innerHTML = "Show " + displayMethod;
+                            getImageButton.appendChild(imageButtonText);
+                            imageCount.appendChild(getImageButton);
+                        }
                         responseList.appendChild(imageCount);
                     }
                 }
             }
             request.open("POST", "/");
             request.send(fileInput);
-        } 
+        }
+        const getPicture = (element, method) => {
+            let imageForm = new FormData();
+            imageForm.append("image", fileInput.get(element.parentNode.childNodes[0].innerHTML));
+            imageForm.append("display", method.toLowerCase());
+            let request = new XMLHttpRequest();
+            request.onreadystatechange = function() {
+                if (request.readyState == 4) {
+                    image = document.createElement("img");
+                    image.setAttribute("src", "data:image/jpeg;base64,"+request.response);
+                    element.appendChild(image);
+                    element.childNodes[0].innerHTML = "Hide " + method;
+                    element.setAttribute("onclick", `remove${method}(this)`);
+                }
+            }
+            request.open("POST", "/");
+            request.send(imageForm);
+        }
+        const showImage = (element) => {
+            getPicture(element, "Image");
+        }
+        const showOutlines = (element) => {
+            getPicture(element, "Outlines");
+        }
+        const showCircles = (element) => {
+            getPicture(element, "Circles");
+        }
+        const removeDisplay = (element, method) => {
+            element.childNodes[1].remove();
+            element.childNodes[0].innerHTML = "Show " + method;
+            element.setAttribute("onclick", `show${method}(this)`);
+        }
+
+        const removeImage = (element) => {
+            removeDisplay(element, "Image");
+        }
+
+        const removeOutlines = (element) => {
+            removeDisplay(element, "Outlines");
+        }
+
+        const removeCircles = (element) => {
+            removeDisplay(element, "Circles");
+        }
     </script>    
 </html>

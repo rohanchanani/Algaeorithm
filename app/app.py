@@ -2,8 +2,10 @@
 
 from io import BytesIO
 from skimage import io
+import matplotlib.pyplot as plt
+from matplotlib.patches import Circle
 import numpy as np
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, send_file
 from skimage.filters import threshold_otsu, threshold_local
 from PIL import Image
 import os
@@ -15,8 +17,10 @@ from scipy import ndimage, stats
 import math
 import cv2
 import json
+import base64
 
 app = Flask(__name__)
+
 
 def threshold_image(image, clear_background=True, block_size=35):
     if not image.any():
@@ -104,9 +108,50 @@ def count_cells(image, clear_background=True, block_size=35, min_ratio=0.1, max_
     return len(all_contours)
 
 
+def get_img_from_fig(fig, dpi=180):
+    buf = BytesIO()
+    fig.savefig(buf, format="jpeg", dpi=dpi)
+    buf.seek(0)
+    img_arr = np.frombuffer(buf.getvalue(), dtype=np.uint8)
+    buf.close()
+    img = cv2.imdecode(img_arr, 1)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    return img
+
+
+def annotate_image(image, outlines, circles=False):
+    if circles:
+        fig = plt.figure()
+        ax = plt.axes(frameon=False)
+        ax.get_xaxis().tick_bottom()
+        ax.axes.get_yaxis().set_visible(False)
+        ax.axes.get_xaxis().set_visible(False)
+        ax.set_aspect('equal')
+        ax.imshow(image)
+        for ((x1, y1), r1) in outlines[1]:
+            circ = Circle((x1, y1), r1)
+            ax.add_patch(circ)
+        fig.add_axes(ax)
+        return image_array_to_base64(get_img_from_fig(fig))
+    else:
+        cv2.drawContours(image, outlines[0], -1, (255, 0, 0), 2)
+        return image_array_to_base64(image)
+
+
+def image_array_to_base64(arr):
+    img = Image.fromarray(arr.astype('uint8'))
+    file_object = BytesIO()
+    img.save(file_object, format="JPEG")
+    img_str = base64.b64encode(file_object.getvalue())
+    file_object.close()
+    return img_str
+
+
 @app.route('/')
 def index_get():
     return render_template("index.html")
+
+
 @app.route('/', methods=["POST"])
 def index_post():
     if request.form.get("url"):
@@ -114,6 +159,17 @@ def index_post():
             img = io.imread(request.form.get("url"))
         except:
             return "Please enter a valid url"
+    display_method = request.form.get("display")
+    if display_method:
+        arr = np.asarray(Image.open(BytesIO(request.files["image"].read())))[
+            :, :, :3]
+        if display_method == "image":
+            return image_array_to_base64(arr)
+        elif display_method == "outlines":
+            return annotate_image(arr, count_cells(arr, return_outlines=True))
+        else:
+            return annotate_image(arr, count_cells(arr, return_outlines=True), circles=True)
+
     if not request.files:
         return "No file"
     else:
