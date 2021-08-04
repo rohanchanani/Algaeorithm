@@ -1,183 +1,27 @@
 <!DOCTYPE html>
 <html lang="en-US">
-    <h2>Files</h2>
-    <input type="file" id="staging" multiple>
-    <button type="button" onclick="addFileToList()">Add File(s)</button>
-    <ol id="fileList"></ol>
-    <h2>URLs</h2>
-    <label for="url">Enter URL</label>
-    <input type="text" name="url" id="url">
-    <button type="button" onclick="addURL()">Add URL</button>
-    <ol id="urlList"></ol>
-    <button type="button" onclick="sendFiles()">Submit Files</button>
-    <ul id="responseList"></ul>
-    <script
-    src="https://code.jquery.com/jquery-3.6.0.js"
-    integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
-    crossorigin="anonymous"></script>
-    <script>
-        let fileList = document.getElementById("fileList");
-        let urlList = document.getElementById("urlList");
-        let fileInput = new FormData();
-        let urlToSubmit = [];
-        const addURL = () => {
-            if (!document.getElementById("url").value){
-                alert("Please enter a url");
-            }
-            else {
-                urlToSubmit.push(document.getElementById("url").value);
-                let listItem = document.createElement("li");
-                listItem.innerHTML = document.getElementById("url").value;
-                urlList.appendChild(listItem);
-                document.getElementById("url").value = "";
-            }
-        }
-        const addFileToList = () => {
-            const stagingInput = document.getElementById("staging");
-            if (stagingInput.files.length===0) {
-                alert("No files selected");
-            }
-            else {
-                for (let newFile of stagingInput.files) {
-                    fileInput.append(newFile.name, newFile);
-                    let listItem = document.createElement("li");
-                    listItem.innerHTML = newFile.name;
-                    fileList.appendChild(listItem);
-                }
-            }
-        }
-        const addCountsToOutput = (responseObject, imageType) => {
-            if ($.isEmptyObject(responseObject)) {
-                return "incomplete";
-            }
-            let responseList = document.getElementById("responseList");
-            for (let key of Object.keys(responseObject)) {
-                let imageCount = document.createElement("li");
-                let hiddenName = document.createElement("p");
-                hiddenName.setAttribute("style", "display: none;");
-                hiddenName.innerHTML = key;
-                imageCount.appendChild(hiddenName);
-                let countText = document.createElement("p");
-                countText.innerHTML = responseObject[key];
-                imageCount.appendChild(countText);
-                if (!responseObject[key].includes("There was an error processing")) {
-                    for (let displayMethod of ["Image", "Outlines", "Circles"]) {
-                        let getImageButton = document.createElement("button");
-                        getImageButton.setAttribute("type", "button");
-                        getImageButton.setAttribute("onclick", `show${imageType + displayMethod}(this)`);
-                        let imageButtonText = document.createElement("p");
-                        imageButtonText.innerHTML = "Show " + displayMethod;
-                        getImageButton.appendChild(imageButtonText);
-                        imageCount.appendChild(getImageButton);
-                    }
-                }
-                responseList.appendChild(imageCount);
-                return "complete";
-            }
-        }
-        const sendFiles = () => {
-            let request = new XMLHttpRequest();
-            request.onreadystatechange = function() {
-                if (request.readyState == 4) {
-                    console.log(request.response)
-                    document.getElementById("responseList").innerHTML = "";
-                    let parsedResponse = JSON.parse(request.response);
-                    console.log(parsedResponse);
-                    console.log(addCountsToOutput(parsedResponse["file_counts"], "File"));
-                    addCountsToOutput(parsedResponse["url_counts"], "Url");
-                }
-            }
-            console.log(urlToSubmit);
-            fileInput.append("url", JSON.stringify(urlToSubmit));
-            console.log(fileInput.get("url"));
-            request.open("POST", "/");
-            request.send(fileInput);
-        }
-        const getFilePicture = (element, method) => {
-            let imageForm = new FormData();
-            imageForm.append("file", fileInput.get(element.parentNode.childNodes[0].innerHTML));
-            imageForm.append("display", method.toLowerCase());
-            let request = new XMLHttpRequest();
-            request.onreadystatechange = function() {
-                if (request.readyState == 4) {
-                    image = document.createElement("img");
-                    image.setAttribute("src", "data:image/jpeg;base64,"+request.response);
-                    element.appendChild(image);
-                    element.childNodes[0].innerHTML = "Hide " + method;
-                    element.setAttribute("onclick", `removeFile${method}(this)`);
-                }
-            }
-            request.open("POST", "/");
-            request.send(imageForm);
-        }
-        const showFileImage = (element) => {
-            getFilePicture(element, "Image");
-        }
-        const showFileOutlines = (element) => {
-            getFilePicture(element, "Outlines");
-        }
-        const showFileCircles = (element) => {
-            getFilePicture(element, "Circles");
-        }
-        const removeFileDisplay = (element, method) => {
-            element.childNodes[1].remove();
-            element.childNodes[0].innerHTML = "Show " + method;
-            element.setAttribute("onclick", `showFile${method}(this)`);
-        }
-
-        const removeFileImage = (element) => {
-            removeFileDisplay(element, "Image");
-        }
-
-        const removeFileOutlines = (element) => {
-            removeFileDisplay(element, "Outlines");
-        }
-
-        const removeFileCircles = (element) => {
-            removeFileDisplay(element, "Circles");
-        }
-        const getUrlPicture = (element, method) => {
-            let imageForm = new FormData();
-            imageForm.append("url", element.parentNode.childNodes[0].innerHTML);
-            imageForm.append("display", method.toLowerCase());
-            let request = new XMLHttpRequest();
-            request.onreadystatechange = function() {
-                if (request.readyState == 4) {
-                    image = document.createElement("img");
-                    image.setAttribute("src", "data:image/jpeg;base64,"+request.response);
-                    element.appendChild(image);
-                    element.childNodes[0].innerHTML = "Hide " + method;
-                    element.setAttribute("onclick", `removeUrl${method}(this)`);
-                }
-            }
-            request.open("POST", "/");
-            request.send(imageForm);
-        }
-        const showUrlImage = (element) => {
-            getUrlPicture(element, "Image");
-        }
-        const showUrlOutlines = (element) => {
-            getUrlPicture(element, "Outlines");
-        }
-        const showUrlCircles = (element) => {
-            getUrlPicture(element, "Circles");
-        }
-        const removeUrlDisplay = (element, method) => {
-            element.childNodes[1].remove();
-            element.childNodes[0].innerHTML = "Show " + method;
-            element.setAttribute("onclick", `showUrl${method}(this)`);
-        }
-
-        const removeUrlImage = (element) => {
-            removeUrlDisplay(element, "Image");
-        }
-
-        const removeUrlOutlines = (element) => {
-            removeUrlDisplay(element, "Outlines");
-        }
-
-        const removeUrlCircles = (element) => {
-            removeUrlDisplay(element, "Circles");
-        }
-    </script>    
+    <head>
+        <script
+        src="https://code.jquery.com/jquery-3.6.0.js"
+        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+        crossorigin="anonymous"></script>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans&display=swap" rel="stylesheet">
+        <link href="static/styles.css" rel="stylesheet">
+    </head>
+    <body>
+        <h2>Files</h2>
+        <input type="file" id="staging" multiple>
+        <button type="button" onclick="addFileToList()">Add File(s)</button>
+        <ol id="fileList"></ol>
+        <h2>URLs</h2>
+        <label for="url">Enter URL</label>
+        <input type="text" name="url" id="url">
+        <button type="button" onclick="addURL()">Add URL</button>
+        <ol id="urlList"></ol>
+        <button type="button" onclick="sendFiles()">Submit Files</button>
+        <ul id="responseList"></ul>
+    </body>
+    <script src="static/script.js"></script>       
 </html>
