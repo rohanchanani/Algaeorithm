@@ -154,33 +154,36 @@ def index_get():
 
 @app.route('/', methods=["POST"])
 def index_post():
-    if request.form.get("url"):
-        try:
-            img = io.imread(request.form.get("url"))
-        except:
-            return "Please enter a valid url"
     display_method = request.form.get("display")
     if display_method:
-        arr = np.asarray(Image.open(BytesIO(request.files["image"].read())))[
-            :, :, :3]
-        if display_method == "image":
-            return image_array_to_base64(arr)
-        elif display_method == "outlines":
-            return annotate_image(arr, count_cells(arr, return_outlines=True))
+        if request.files.get("file"):
+            arr = np.asarray(Image.open(BytesIO(request.files["file"].read())))[
+                :, :, :3]
         else:
-            return annotate_image(arr, count_cells(arr, return_outlines=True), circles=True)
-
-    if not request.files:
-        return "No file"
+            arr = np.asarray(io.imread(request.form.get("url")))
+        if display_method == "image":
+                return image_array_to_base64(arr)
+        elif display_method == "outlines":
+                return annotate_image(arr, count_cells(arr, return_outlines=True))
+        else:
+                return annotate_image(arr, count_cells(arr, return_outlines=True), circles=True)
+            
+    if not request.files and not request.form.get("url"):
+        return "No files or urls"
     else:
-        img_counts = {}
+        final_data = {"file_counts": {}, "url_counts": {}}
         for filename, file in request.files.items():
             try:
                 img = np.asarray(Image.open(BytesIO(file.read())))
+                num_cells = count_cells(img)
+                final_data["file_counts"][filename] = "There are {} cells in {}.".format(num_cells, filename)
             except:
-                img_counts[filename] = "Invalid File"
+                final_data["file_counts"][filename] = "There was an error processing {}.".format(filename)
+        for image_url in json.loads(request.form.get("url")):
             try:
-                img_counts[filename] = count_cells(img)
+                img = np.asarray(io.imread(image_url))
+                num_cells = count_cells(img)
+                final_data["url_counts"][image_url] = "There are {} cells in {}.".format(num_cells, image_url)
             except:
-                img_counts[filename] = "Invalid File"
-        return img_counts
+                final_data["url_counts"][image_url] = "There was an error processing {}.".format(image_url)    
+        return final_data
