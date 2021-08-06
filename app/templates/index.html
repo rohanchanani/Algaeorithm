@@ -20,8 +20,13 @@
         <input type="text" name="url" id="url">
         <button type="button" onclick="addURL()">Add URL</button>
         <ol id="urlList"></ol>
-        <button type="button" onclick="sendFiles()">Submit Files</button>
-        <ul id="responseList"></ul>
+        <button type="button" onclick="loadInformation()">Submit Files</button>
+        <div id="results">
+            <h2 id="resultsTitle"></h2>
+            <p id="resultsCount"></p>
+            <img id="resultsImage" width=400>
+            <br>
+        </div>
     </body>
     <script src="static/script.js"></script>       
 </html>
