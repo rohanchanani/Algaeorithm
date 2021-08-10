@@ -138,7 +138,7 @@ const loadInformation = () => {
             displayImage(0, "Image");
         }    
     }
-    fileInput.append("url", JSON.stringify(urlToSubmit));
+    fileInput.set("url", JSON.stringify(urlToSubmit));
     request.open("POST", "/");
     request.send(fileInput);
     let i = 0;
