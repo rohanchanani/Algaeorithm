@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en-US">
     <head>
+        <title>Algaeorithm</title>
         <script
         src="https://code.jquery.com/jquery-3.6.0.js"
         integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
@@ -12,12 +13,11 @@
     </head>
     <body>
         <h2>Files</h2>
-        <input type="file" id="staging" multiple>
-        <button type="button" onclick="addFileToList()">Add File(s)</button>
+        <input type="file" id="staging" accept="image/png, image/jpeg" multiple>
         <ol id="fileList"></ol>
         <h2>URLs</h2>
         <label for="url">Enter URL</label>
-        <input type="text" name="url" id="url">
+        <input type="text" name="url" id="urlInput">
         <button type="button" onclick="addURL()">Add URL</button>
         <ol id="urlList"></ol>
         <button type="button" onclick="loadInformation()">Submit Files</button>
@@ -26,6 +26,7 @@
             <p id="resultsCount"></p>
             <img id="resultsImage" width=400>
             <br>
+            <a id="resultsDownload"></a>
         </div>
     </body>
     <script src="static/script.js"></script>       

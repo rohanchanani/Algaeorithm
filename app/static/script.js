@@ -4,16 +4,18 @@ let fileList = document.getElementById("fileList");
 let urlList = document.getElementById("urlList");
 let fileInput = new FormData();
 let urlToSubmit = [];
+
+
 const addURL = () => {
-    if (!document.getElementById("url").value){
+    if (!document.getElementById("urlInput").value){
         alert("Please enter a url");
     }
     else {
-        urlToSubmit.push(document.getElementById("url").value);
+        urlToSubmit.push(document.getElementById("urlInput").value);
         let listItem = document.createElement("li");
-        listItem.innerHTML = document.getElementById("url").value;
+        listItem.innerHTML = document.getElementById("urlInput").value;
         urlList.appendChild(listItem);
-        document.getElementById("url").value = "";
+        document.getElementById("urlInput").value = "";
     }
 }
 const addFileToList = () => {
@@ -46,26 +48,15 @@ const changeImage = (change) => {
     displayImage(imageIndex, "Image");
 }
 
-const setImage = (location, method, type) => {
-    let imageForm = new FormData();
-    if (type=="url") {
-        imageForm.append("url", location);
-    } else {
-        imageForm.append("file", fileInput.get(location));
-    }
-    imageForm.append("display", method.toLowerCase());
-    let request = new XMLHttpRequest();
-    request.onreadystatechange = function() {
-        if (request.readyState == 4) {
-            document.getElementById("resultsImage").setAttribute("src", "data:image/jpeg;base64,"+request.response);
-        } 
-    }
-    request.open("POST", "/");
-    request.send(imageForm);
+const setImage = (index, method) => {
+    let resultsImage = document.getElementById("resultsImage");
+    resultsImage.setAttribute("src", "data:image/jpeg;base64,"+imagesList[index][0][method.toLowerCase()])
 }
 
 const displayImage = (imagesIndex, method)  => {
-    let count = imagesList[imagesIndex][0];
+    let downloadLink = document.getElementById("resultsDownload");
+    downloadLink.innerHTML = "";
+    let count = imagesList[imagesIndex][0]["count"];
     let location = imagesList[imagesIndex][1];
     let type = imagesList[imagesIndex][2];
     let resultsElement = document.getElementById("results");
@@ -79,21 +70,27 @@ const displayImage = (imagesIndex, method)  => {
         }
     }
     document.getElementById("resultsTitle").innerHTML = location;
+    document.getElementById("resultsCount").innerHTML = count;
     if (count.includes("There was an error processing")) {
-        document.getElementById("resultsImage").setAttribute("src", getPicture(location, "Image", type));
-        document.getElementById("resultsCount").innerHTML = count;
+        document.getElementById("resultsImage").removeAttribute("src");
+        if (imagesList[imagesIndex][0].keys().length > 1) {
+            setImage(imagesIndex, "Image");
+        }
     }
     else {
-        document.getElementById("resultsCount").innerHTML = count;
         let methods = ["Image", "Outlines", "Circles"];
         methods.splice(methods.indexOf(method), 1);
-        setImage(location, method, type);
+        setImage(imagesIndex, method);
         for (let i = 0; i < 2; i++) {
             let button = document.createElement("button");
             button.setAttribute("onclick", `displayImage(${imagesIndex}, '${methods[i]}')`);
             button.innerHTML = "Show " + methods[i];
             resultsElement.appendChild(button);
         }
+        downloadLink.innerHTML = "<img src='static/download_icon.svg'>";
+        downloadLink.setAttribute("href", document.getElementById("resultsImage").getAttribute("src"));
+        downloadLink.setAttribute("download", getFilename(location, method, type));
+        resultsElement.appendChild(downloadLink);
     }
     if (imagesIndex) {
         let button = document.createElement("button");
@@ -113,6 +110,7 @@ const displayImage = (imagesIndex, method)  => {
         button.appendChild(arrow);
         resultsElement.appendChild(button);
     }
+    
 }
 
 const addInformation = (responseObject, imageType) => {
@@ -126,13 +124,13 @@ const addInformation = (responseObject, imageType) => {
 
 const loadInformation = () => {
     if (!urlList.children.length && !fileList.children.length) {
-        console.log(fileInput.entries());
         alert("Please add a file or url");
         return;
     }
     let request = new XMLHttpRequest();
     request.onreadystatechange = function() {
         if (request.readyState == 4) {
+            imagesIndex = 0;
             imagesList = [];
             let parsedResponse = JSON.parse(request.response);
             addInformation(parsedResponse["file_counts"], "file");
@@ -143,6 +141,22 @@ const loadInformation = () => {
     fileInput.append("url", JSON.stringify(urlToSubmit));
     request.open("POST", "/");
     request.send(fileInput);
+    let i = 0;
+    let resultsElement = document.getElementById("results");
+    while (i < resultsElement.childNodes.length) {
+        let nameOfNode = resultsElement.childNodes[i].nodeName.toLowerCase();
+        if (nameOfNode == "button" || nameOfNode == "text") {
+            resultsElement.childNodes[i].remove();
+        }
+        else {
+            resultsElement.childNodes[i].innerHTML = "";
+            if (nameOfNode=="img") {
+                resultsElement.childNodes[i].src = "static/person_counting.jpg";
+            }
+            i++;
+        }
+    }
+    document.getElementById("resultsTitle").innerHTML = "Counting Cells";
 }
 
 
@@ -233,3 +247,14 @@ const removePicture = (element, method, type) => {
     element.children[0].innerHTML = "Show " + method;
     element.setAttribute("onclick", `showPicture(this, '${method}', '${type}')`);
 }
+
+document.addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+        if (event.ctrlKey) {
+            loadInformation();
+        } else {
+            addURL();
+        }
+    }
+});
+document.getElementById("staging").addEventListener("change", addFileToList);

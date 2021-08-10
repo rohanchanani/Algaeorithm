@@ -144,7 +144,34 @@ def image_array_to_base64(arr):
     img.save(file_object, format="JPEG")
     img_str = base64.b64encode(file_object.getvalue())
     file_object.close()
-    return img_str
+    return img_str.decode("utf-8")
+
+def load_response(key, filename, filedata):
+    final_data[key][filename] = {}
+    if filename==filedata:
+        try:
+            img = np.asarray(io.imread(filename))
+        except:
+            final_data[key][filename]["count"] = "There was an error processing {}.".format(filename)
+            return
+    else:  
+        try:
+            img = np.asarray(Image.open(BytesIO(filedata.read())))
+        except:
+            final_data[key][filename]["count"] = "There was an error processing {}.".format(filename)
+            return
+    try:
+        cell_results = count_cells(img, return_outlines=True)
+    except:
+        final_data[key][filename]["count"] = "There was an error processing {}.".format(filename)
+        final_data[key][filename]["image"] = image_array_to_base64(img)
+        return
+    final_data[key][filename] = {}
+    final_data[key][filename]["count"] = "There are {} cells in {}.".format(len(cell_results[0]), filename)
+    final_data[key][filename]["image"] = image_array_to_base64(img)
+    final_data[key][filename]["outlines"] = annotate_image(img, cell_results)
+    final_data[key][filename]["circles"] = annotate_image(img, cell_results, True)
+    
 
 
 @app.route('/')
@@ -171,19 +198,10 @@ def index_post():
     if not request.files and not request.form.get("url"):
         return "No files or urls"
     else:
+        global final_data
         final_data = {"file_counts": {}, "url_counts": {}}
         for filename, file in request.files.items():
-            try:
-                img = np.asarray(Image.open(BytesIO(file.read())))
-                num_cells = count_cells(img)
-                final_data["file_counts"][filename] = "There are {} cells in {}.".format(num_cells, filename)
-            except:
-                final_data["file_counts"][filename] = "There was an error processing {}.".format(filename)
+            load_response("file_counts", filename, file)
         for image_url in json.loads(request.form.get("url")):
-            try:
-                img = np.asarray(io.imread(image_url))
-                num_cells = count_cells(img)
-                final_data["url_counts"][image_url] = "There are {} cells in {}.".format(num_cells, image_url)
-            except:
-                final_data["url_counts"][image_url] = "There was an error processing {}.".format(image_url)    
+            load_response("url_counts", image_url, image_url)
         return final_data
