@@ -180,28 +180,11 @@ def index_get():
 
 
 @app.route('/', methods=["POST"])
-def index_post():
-    display_method = request.form.get("display")
-    if display_method:
-        if request.files.get("file"):
-            arr = np.asarray(Image.open(BytesIO(request.files["file"].read())))[
-                :, :, :3]
-        else:
-            arr = np.asarray(io.imread(request.form.get("url")))
-        if display_method == "image":
-                return image_array_to_base64(arr)
-        elif display_method == "outlines":
-                return annotate_image(arr, count_cells(arr, return_outlines=True))
-        else:
-                return annotate_image(arr, count_cells(arr, return_outlines=True), circles=True)
-            
-    if not request.files and not request.form.get("url"):
-        return "No files or urls"
-    else:
-        global final_data
-        final_data = {"file_counts": {}, "url_counts": {}}
-        for filename, file in request.files.items():
-            load_response("file_counts", filename, file)
-        for image_url in json.loads(request.form.get("url")):
-            load_response("url_counts", image_url, image_url)
-        return final_data
+def index_post():        
+    global final_data
+    final_data = {"file_counts": {}, "url_counts": {}}
+    for filename, file in request.files.items():
+        load_response("file_counts", filename, file)
+    for image_url in json.loads(request.form.get("url")):
+        load_response("url_counts", image_url, image_url)
+    return final_data
