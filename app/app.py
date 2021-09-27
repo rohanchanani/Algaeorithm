@@ -17,7 +17,6 @@ from scipy import ndimage, stats
 import math
 import cv2
 import json
-import base64
 
 app = Flask(__name__)
 
