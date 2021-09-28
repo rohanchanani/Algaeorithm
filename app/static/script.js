@@ -12,10 +12,11 @@ const addURL = () => {
     }
     else {
         urlToSubmit.push(document.getElementById("urlInput").value);
-        let listItem = document.createElement("li");
-        listItem.innerHTML = document.getElementById("urlInput").value;
-        urlList.appendChild(listItem);
+        let previewImage = document.createElement("img");
+        previewImage.setAttribute("class", "preview");
+        previewImage.src = document.getElementById("urlInput").value;
         document.getElementById("urlInput").value = "";
+        document.getElementById("previews").appendChild(previewImage);
     }
 }
 const addFileToList = () => {
@@ -26,9 +27,17 @@ const addFileToList = () => {
     else {
         for (let newFile of stagingInput.files) {
             fileInput.append(newFile.name, newFile);
-            let listItem = document.createElement("li");
-            listItem.innerHTML = newFile.name;
-            fileList.appendChild(listItem);
+            /*let previewFigure = document.createElement("figure");
+            previewFigure.setAttribute("class", "preview");*/
+            let previewImage = document.createElement("img");
+            previewImage.setAttribute("class", "preview");
+            previewImage.src = URL.createObjectURL(newFile);
+            /*previewFigure.appendChild(previewImage);
+            let previewFigcaption = document.createElement("figcaption");
+            previewFigcaption.innerHTML = "Delete " + newFile.name;
+            previewFigcaption.setAttribute("onclick", "deleteFile()");
+            previewFigure.appendChild(previewFigcaption);*/
+            document.getElementById("previews").appendChild(previewImage);
         }
     }
 }
@@ -54,22 +63,29 @@ const setImage = (index, method) => {
 }
 
 const displayImage = (imagesIndex, method)  => {
-    let downloadLink = document.getElementById("resultsDownload");
-    downloadLink.innerHTML = "";
+    document.getElementById("inputInfo").setAttribute("class", "hidden");
+    document.getElementById("resultsInfo").setAttribute("class", "palette");
+    //let downloadLink = document.getElementById("resultsDownload");
+    //downloadLink.innerHTML = "";
     let count = imagesList[imagesIndex][0]["count"];
     let location = imagesList[imagesIndex][1];
     let type = imagesList[imagesIndex][2];
-    let resultsElement = document.getElementById("results");
+    let resultsElement = document.getElementById("visual");
     let i = 0;
     while (i < resultsElement.childNodes.length) {
-        if (resultsElement.childNodes[i].nodeName.toLowerCase() == "button") {
+        if (resultsElement.childNodes[i].nodeName.toLowerCase() == "a") {
+            console.log(resultsElement.childNodes[i].getAttribute("id"));
             resultsElement.childNodes[i].remove();
         }
         else {
             i++;
         }
     }
-    document.getElementById("resultsTitle").innerHTML = location;
+    document.getElementById("img-nav").setAttribute("class", "hidden");
+    document.getElementById("lastImage").setAttribute("class", "hidden");
+    document.getElementById("nextImage").setAttribute("class", "hidden");
+    document.getElementById("image-number").innerHTML = "";
+    //document.getElementById("resultsTitle").innerHTML = location;
     document.getElementById("resultsCount").innerHTML = count;
     if (count.includes("There was an error processing")) {
         document.getElementById("resultsImage").removeAttribute("src");
@@ -82,33 +98,29 @@ const displayImage = (imagesIndex, method)  => {
         methods.splice(methods.indexOf(method), 1);
         setImage(imagesIndex, method);
         for (let i = 0; i < 2; i++) {
-            let button = document.createElement("button");
-            button.setAttribute("onclick", `displayImage(${imagesIndex}, '${methods[i]}')`);
-            button.innerHTML = "Show " + methods[i];
-            resultsElement.appendChild(button);
+            let anchor = document.createElement("a");
+            anchor.setAttribute("onclick", `displayImage(${imagesIndex}, '${methods[i]}')`);
+            anchor.innerHTML = "Show " + methods[i];
+            anchor.setAttribute("class", "image-type");
+            resultsElement.appendChild(anchor);
         }
-        downloadLink.innerHTML = "<img src='static/download_icon.svg'>";
-        downloadLink.setAttribute("href", document.getElementById("resultsImage").getAttribute("src"));
-        downloadLink.setAttribute("download", getFilename(location, method, type));
-        resultsElement.appendChild(downloadLink);
+        //downloadLink.innerHTML = "<img src='static/download_icon.svg'>";
+        //downloadLink.setAttribute("href", document.getElementById("resultsImage").getAttribute("src"));
+        //downloadLink.setAttribute("download", getFilename(location, method, type));
+        //resultsElement.appendChild(downloadLink);
     }
+    let navbar = document.getElementById("img-nav");
+    navbar.setAttribute("class", "img-nav");
     if (imagesIndex) {
-        let button = document.createElement("button");
-        button.setAttribute("onclick", "changeImage(-1)");
-        let arrow = document.createElement("img");
-        arrow.setAttribute("src", "static/left_arrow_icon.svg");
-        arrow.setAttribute("height", 17)
-        button.appendChild(arrow);
-        resultsElement.appendChild(button); 
+        let anchor = document.getElementById("lastImage");
+        anchor.setAttribute("onclick", "changeImage(-1)");
+        anchor.setAttribute("class", "last");
     }
+    document.getElementById("image-number").innerHTML = (imagesIndex + 1).toString() + " of " + imagesList.length.toString();
     if (imagesIndex < imagesList.length - 1) {
-        let button = document.createElement("button");
-        button.setAttribute("onclick", "changeImage(1)");
-        let arrow = document.createElement("img");
-        arrow.setAttribute("src", "static/right_arrow_icon.svg");
-        arrow.setAttribute("height", 17)
-        button.appendChild(arrow);
-        resultsElement.appendChild(button);
+        let anchor = document.getElementById("nextImage");
+        anchor.setAttribute("onclick", "changeImage(1)");
+        anchor.setAttribute("class", "next");
     }
     
 }
@@ -123,7 +135,7 @@ const addInformation = (responseObject, imageType) => {
 }
 
 const loadInformation = () => {
-    if (!urlList.children.length && !fileList.children.length) {
+    if (!document.getElementById("previews").children.length) {
         alert("Please add a file or url");
         return;
     }
@@ -141,22 +153,8 @@ const loadInformation = () => {
     fileInput.set("url", JSON.stringify(urlToSubmit));
     request.open("POST", "/");
     request.send(fileInput);
-    let i = 0;
-    let resultsElement = document.getElementById("results");
-    while (i < resultsElement.childNodes.length) {
-        let nameOfNode = resultsElement.childNodes[i].nodeName.toLowerCase();
-        if (nameOfNode == "button" || nameOfNode == "text") {
-            resultsElement.childNodes[i].remove();
-        }
-        else {
-            resultsElement.childNodes[i].innerHTML = "";
-            if (nameOfNode=="img") {
-                resultsElement.childNodes[i].src = "static/person_counting.jpg";
-            }
-            i++;
-        }
-    }
-    document.getElementById("resultsTitle").innerHTML = "Counting Cells";
+    document.getElementById("resultsImage").setAttribute("src", "static/person_counting.jpg");
+    //document.getElementById("resultsTitle").innerHTML = "Counting Cells";
 }
 
 document.addEventListener("keydown", function(event) {

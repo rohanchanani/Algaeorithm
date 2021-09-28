@@ -5,46 +5,59 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Algaeorithm</title>
+    <script
+        src="https://code.jquery.com/jquery-3.6.0.js"
+        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+        crossorigin="anonymous"></script>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="static/style.css">
 </head>
 <body>
     <body class="body">
         <div class="header">
             <h1 class="logo">Algaeorithm</h1>
         </div>
-        <div class="palette">
+        <div id="inputInfo" class="palette">
             <h1 class="instruction">To begin, choose an option below</h1>
             <div class="upper">
                 <div class="left">
-                    <a href="#" class="upload-photo">upload a photo</a>
+                    <label for="staging" class="upload-photo">upload a photo</label>
+                    <input id="staging" type="file" class="hidden" accept="image/png, image/jpeg" multiple>
                 </div>
                 <div class="right">
-                    <div class="form">
-                        <form id="image-form" name="image-form" data-name="Image Form" method="get" class="url">
-                            <input type="text" maxlength="256" name="url" data-name="url" placeholder="enter a url" id="url" class="enter-url"/>
-                            <input type="submit" value="add" data-wait="verifying image..." class="add-url"/>
-                        </form>
+                    <div class="form url">
+                            <input type="text" maxlength="256" name="url" data-name="url" placeholder="enter a url" id="urlInput" class="enter-url"/>
+                            <button type="button" onclick="addURL()" data-wait="verifying image..." class="add-url">add</button>
                     </div>
                 </div>
             </div>
             <div class="lower">
                 <div class="left-margin">
                 </div>
-                <div class="previews">
-                    <img src="https://uploads-ssl.webflow.com/611968865cc3c3243e59ac45/6125b79985cd99d275c98ecc_chlamydomonas-dicmicroscope.jpg" class="preview"/>
-                    <img src="https://uploads-ssl.webflow.com/611968865cc3c3243e59ac45/6125b79924d36f3d3eab5cee_Chlamydomonas-reinhardtii%20(1).jpg"  class="preview"/>
-                    <img src="https://uploads-ssl.webflow.com/611968865cc3c3243e59ac45/6125b79924d36f3d3eab5cee_Chlamydomonas-reinhardtii%20(1).jpg"  class="preview"/>
-                    <img src="https://uploads-ssl.webflow.com/611968865cc3c3243e59ac45/6125b79924d36f3d3eab5cee_Chlamydomonas-reinhardtii%20(1).jpg"  class="preview"/>
-                    <img src="https://uploads-ssl.webflow.com/611968865cc3c3243e59ac45/6125b79924d36f3d3eab5cee_Chlamydomonas-reinhardtii%20(1).jpg"  class="preview"/>
+                <div class="previews" id="previews">
                 </div>
                 <div class="analyze">
-                    <a href='analyzed.html' class="analyze-button"></a>
+                    <a onclick="loadInformation()" class="analyze-button"></a>
                 </div>
             </div>
         </div>
+        <div id="resultsInfo" class="hidden">
+            <div class="lab">
+                <div id="visual" class="visual">
+                    <img id="resultsImage" class="algae"/>
+                    <div class="hidden" id="img-nav">
+                        <a id="lastImage" class="hidden"></a>
+                        <div id="image-number" class="image-number"></div>
+                        <a id="nextImage" class="hidden"></a>
+                    </div>
+                </div>
+                <div class="info">
+                    <div id="resultsCount" class="we-found"></div>
+                </div>
+            </div> 
+        </div>
     </body>
-    <script src="main.js"></script>
+    <script src="static/script.js"></script>
 </body>
 </html>

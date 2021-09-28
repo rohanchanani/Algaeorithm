@@ -1,6 +1,11 @@
+.hidden {
+  display: none;
+}
 
-a {
+
+a, button {
   text-decoration: none;
+  cursor: pointer;
 }
 
 .body {
@@ -83,6 +88,7 @@ a {
     font-weight: 400;
     background-clip: border-box;
     object-fit: fill;
+    cursor: pointer;
   }
   
   .upload-photo:main_hover {
@@ -174,6 +180,7 @@ a {
     text-align: center;
     background-clip: border-box;
     object-fit: fill;
+    cursor: pointer;
   }
   
   .analyze {
@@ -287,8 +294,7 @@ a {
   .algae {
     display: inline-block;
     overflow: visible;
-    height: 40vw;
-    max-height: 800px;
+    height: 30vw;
     margin-bottom: 1vw;
   }
 

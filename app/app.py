@@ -45,8 +45,7 @@ def image_to_contours_list(image, clear_background=True, block_size=35, min_rati
         threshold_image(image, clear_background, block_size))
     # Find peaks and convert to labels
     D = ndimage.distance_transform_edt(thresh)
-    localMax = peak_local_max(
-        D, indices=False, min_distance=min_distance, labels=thresh)
+    localMax = peak_local_max(D, indices=False, min_distance=min_distance, labels=thresh)
     markers = ndimage.label(localMax, structure=np.ones((3, 3)))[0]
     labels = watershed(-D, markers, mask=thresh)
     all_contours = []
@@ -60,10 +59,12 @@ def image_to_contours_list(image, clear_background=True, block_size=35, min_rati
             mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         c = max(cnts, key=cv2.contourArea)
         all_contours.append(c)
+    if not len(all_contours):
+        return []
     # Remove outliers in contour area
     contour_areas = list(map(cv2.contourArea, all_contours))
-    all_contours = [contour for idx, contour in enumerate(
-        all_contours) if abs(stats.zscore(contour_areas)[idx]) < 5]
+    if len(all_contours) > 1:
+        all_contours = [contour for idx, contour in enumerate(all_contours) if abs(stats.zscore(contour_areas)[idx]) < 5]
     contour_areas = list(map(cv2.contourArea, all_contours))
     return [contour for contour in all_contours if min_ratio * np.mean(contour_areas) < cv2.contourArea(contour)]
 
@@ -97,15 +98,15 @@ def count_cells(image, clear_background=True, block_size=35, min_ratio=0.1, max_
     # Calculate area once to get an idea of the area of each cell in pixels, then calculate again with new minimum distance which takes into account the new areas
     all_contours = image_to_contours_list(image, clear_background=clear_background, block_size=block_size,
                                           min_ratio=min_ratio, max_ratio=max_ratio, min_distance=min_distance)
+    if not all_contours:
+        return [], []
     contour_areas = list(map(cv2.contourArea, all_contours))
     new_min_distance = round(math.sqrt(np.mean(contour_areas)) / 3)
     all_contours = image_to_contours_list(image, clear_background=clear_background, block_size=block_size,
                                           min_ratio=min_ratio, max_ratio=max_ratio, min_distance=new_min_distance)
     all_contours = sorted(all_contours, key=cv2.contourArea, reverse=True)
     all_contours, coords = remove_cells_within_cells(all_contours)
-    if return_outlines:
-        return all_contours, coords
-    return len(all_contours)
+    return all_contours, coords
 
 
 def get_img_from_fig(fig, dpi=180):
@@ -120,6 +121,8 @@ def get_img_from_fig(fig, dpi=180):
 
 
 def annotate_image(image, outlines, circles=False):
+    if not outlines:
+        return image_array_to_base64(image)
     if circles:
         fig = plt.figure()
         ax = plt.axes(frameon=False)
@@ -141,7 +144,10 @@ def annotate_image(image, outlines, circles=False):
 def image_array_to_base64(arr):
     img = Image.fromarray(arr.astype('uint8'))
     file_object = BytesIO()
-    img.save(file_object, format="JPEG")
+    try:
+        img.save(file_object, format="JPEG")
+    except:
+        img.save(file_object, format="PNG")
     img_str = base64.b64encode(file_object.getvalue())
     file_object.close()
     return img_str.decode("utf-8")
@@ -153,19 +159,19 @@ def load_response(key, filename, filedata):
             img = np.asarray(io.imread(filename))
         except:
             final_data[key][filename]["count"] = "There was an error processing {}.".format(filename)
-            return
+            return 0
     else:  
         try:
             img = np.asarray(Image.open(BytesIO(filedata.read())))
         except:
             final_data[key][filename]["count"] = "There was an error processing {}.".format(filename)
-            return
+            return 0
     try:
-        cell_results = count_cells(img, return_outlines=True)
+        cell_results = count_cells(img)
     except:
         final_data[key][filename]["count"] = "There was an error processing {}.".format(filename)
         final_data[key][filename]["image"] = image_array_to_base64(img)
-        return
+        return 0
     final_data[key][filename] = {}
     final_data[key][filename]["count"] = "There are {} cells in {}.".format(len(cell_results[0]), filename)
     final_data[key][filename]["image"] = image_array_to_base64(img)
@@ -176,7 +182,7 @@ def load_response(key, filename, filedata):
 
 @app.route('/')
 def index_get():
-    return render_template("index.html")
+    return render_template("index1.html")
 
 
 @app.route('/', methods=["POST"])
