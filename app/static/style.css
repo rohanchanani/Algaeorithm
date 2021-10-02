@@ -9,7 +9,7 @@ a, button {
 }
 
 .body {
-    height: 100%;
+    height: 100vh;
     margin: 0;
     background-repeat: no-repeat;
     background-attachment: fixed;
@@ -18,7 +18,8 @@ a, button {
   }
 
   .header {
-    margin-top: 0vw;
+    margin-top: 0vh;
+    height: 10vh;
     background-color: hsla(0, 0.00%, 100.00%, 1.00);
   }
 
@@ -34,9 +35,11 @@ a, button {
   }
 
   .palette {
+    display: flex;
+    flex-flow: column nowrap;
     position: relative;
     width: 90vw;
-    height: auto;
+    height: 80vh;
     max-width: 1800px;
     margin: 2vw auto 0px auto;
     border-radius: 30px;
@@ -46,38 +49,36 @@ a, button {
   }
 
   .instruction {
+    flex-grow: 1;
     display: block;
-    padding-top: 150px;
+    padding-top: .5vh;
     font-family: DM Sans;
-    font-size: 200%;
-    font-weight: 500;
+    font-size: 3vh;
+    font-weight: 300;
     text-align: center;
   }
 
   .upper {
-    margin-top: 3vw;
-    column-count: 2;
-    height: 15%;
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    flex-grow: 4;
+    margin-top: 3vh;
+    height: 15vh;
   }
 
   .left {
-    height: 12vw;
+    display: flex;
+    height: 12vh;
     margin-top: 0.5%;
   }
   
   .upload-photo {
-    position: static;
-    left: 31px;
-    display: block;
-    width: 50%;
-    height: 45px;
-    margin-right: 10%;
-    margin-left: auto;
-    padding-top: 15px;
-    padding-left: 0px;
+    width: 30vw;
+    height: 10vh;
     border-style: solid;
     border-width: 0.5px;
-    border-radius: 30px;
+    border-radius: 3px;
     background-color: hsla(208, 75.69%, 7.97%, 0.00);
     transition-property: all;
     transition-duration: 300ms;
@@ -150,6 +151,7 @@ a, button {
   }
 
   .lower {
+    flex-grow: 5;
     column-count: 3;
     height: 20vw;
     margin-top: -3vw;
@@ -211,16 +213,12 @@ a, button {
     transform: translate(10%, 0px);
   }
 
-  .lab {
-    column-count: 2;
-  }
-
   .visual {
     display: block;
     margin-right: -50%;
   }
 
-  .img-nav {
+  .img-nav, .show-pictures {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -325,7 +323,7 @@ a, button {
     left: auto;
     top: 0%;
     right: 0%;
-    bottom: auto;
+    bottom: 0%;
     display: flex;
     height: 40vw;
     max-height: 800px;
@@ -356,7 +354,7 @@ a, button {
     background-color: transparent;
     font-family: DM Sans;
     color: hsla(0, 0.00%, 20.00%, 1.00);
-    font-size: 30px;
+    font-size: 1vw;
     font-style: normal;
     text-align: left;
   }

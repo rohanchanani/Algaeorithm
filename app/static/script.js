@@ -84,6 +84,7 @@ const displayImage = (imagesIndex, method)  => {
     document.getElementById("img-nav").setAttribute("class", "hidden");
     document.getElementById("lastImage").setAttribute("class", "hidden");
     document.getElementById("nextImage").setAttribute("class", "hidden");
+    document.getElementById("show-pictures").innerHTML = "";
     document.getElementById("image-number").innerHTML = "";
     //document.getElementById("resultsTitle").innerHTML = location;
     document.getElementById("resultsCount").innerHTML = count;
@@ -102,7 +103,7 @@ const displayImage = (imagesIndex, method)  => {
             anchor.setAttribute("onclick", `displayImage(${imagesIndex}, '${methods[i]}')`);
             anchor.innerHTML = "Show " + methods[i];
             anchor.setAttribute("class", "image-type");
-            resultsElement.appendChild(anchor);
+            document.getElementById("show-pictures").appendChild(anchor);
         }
         //downloadLink.innerHTML = "<img src='static/download_icon.svg'>";
         //downloadLink.setAttribute("href", document.getElementById("resultsImage").getAttribute("src"));

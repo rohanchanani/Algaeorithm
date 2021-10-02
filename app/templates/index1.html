@@ -11,7 +11,7 @@
         crossorigin="anonymous"></script>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="static/style.css">
+    <link rel="stylesheet" href="static/test.css">
 </head>
 <body>
     <body class="body">
@@ -19,22 +19,21 @@
             <h1 class="logo">Algaeorithm</h1>
         </div>
         <div id="inputInfo" class="palette">
-            <h1 class="instruction">To begin, choose an option below</h1>
+            <div class="instruction">
+                <h1>To begin, choose an option below</h1>
+            </div>
             <div class="upper">
                 <div class="left">
-                    <label for="staging" class="upload-photo">upload a photo</label>
+                    <label for="staging" class="upload-photo input-values">upload a photo</label>
                     <input id="staging" type="file" class="hidden" accept="image/png, image/jpeg" multiple>
                 </div>
                 <div class="right">
                     <div class="form url">
-                            <input type="text" maxlength="256" name="url" data-name="url" placeholder="enter a url" id="urlInput" class="enter-url"/>
-                            <button type="button" onclick="addURL()" data-wait="verifying image..." class="add-url">add</button>
+                            <input type="text" maxlength="256" name="url" data-name="url" placeholder="enter a url" id="urlInput" class="enter-url input-values"/>
                     </div>
                 </div>
             </div>
             <div class="lower">
-                <div class="left-margin">
-                </div>
                 <div class="previews" id="previews">
                 </div>
                 <div class="analyze">
@@ -43,19 +42,16 @@
             </div>
         </div>
         <div id="resultsInfo" class="hidden">
-            <div class="lab">
-                <div id="visual" class="visual">
-                    <img id="resultsImage" class="algae"/>
-                    <div class="hidden" id="img-nav">
-                        <a id="lastImage" class="hidden"></a>
-                        <div id="image-number" class="image-number"></div>
-                        <a id="nextImage" class="hidden"></a>
-                    </div>
+            <div id="visual" class="visual">
+                <div id="resultsCount" class="we-found"></div> 
+                <img id="resultsImage" class="algae"/>
+                <div id="show-pictures" class="show-pictures"></div>
+                <div class="hidden" id="img-nav">
+                    <a id="lastImage" class="hidden"></a>
+                    <div id="image-number" class="image-number"></div>
+                    <a id="nextImage" class="hidden"></a>
                 </div>
-                <div class="info">
-                    <div id="resultsCount" class="we-found"></div>
-                </div>
-            </div> 
+            </div>
         </div>
     </body>
     <script src="static/script.js"></script>

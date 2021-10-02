@@ -1,0 +1,244 @@
+.hidden {
+    display: none;
+}
+  
+  
+a, button {
+  text-decoration: none;
+  cursor: pointer;
+}
+.body {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-image: linear-gradient(to bottom, #124d5a, hsla(190.83333333333331, 66.67%, 21.18%, 0.25));
+  background-clip: border-box;
+}
+.header {
+  height: 10vh;
+  display: flex;
+  justify-content: center;
+  align-items: center; 
+  margin-bottom: 2.5vh;
+}
+.logo {
+  display: block;
+  height: 8vh;
+  font-family: DM Sans;
+  text-align: center;
+}
+.palette {
+  display: flex;
+  flex-flow: column nowrap;
+  width: 90vw;
+  height: 80vh;
+  background-color: hsla(0, 0.00%, 100.00%, 0.80);
+  border-radius: 2vw;
+  box-shadow: .1vw .1vw 1.5vw .1vw hsla(190.83333333333331, 66.67%, 21.18%, 0.48);
+  text-align: center;
+}
+.instruction {
+  padding-top: .5vh;
+  font-family: DM Sans;
+  font-size: 2vw;
+  font-weight: 300;
+  text-align: center;
+}
+.upper {
+  display: flex;
+  flex-grow: 4;
+  flex-wrap: nowrap;
+  justify-content: space-around;
+}
+.left {
+  padding-left: 10vw;
+  height: 12vh; 
+}
+
+.input-values {
+  height: 10vh;
+  border-style: solid;
+  border-width: 0.5px;
+  border-radius: 3vw;
+  background-color: hsla(208, 75.69%, 7.97%, 0.00);
+  font-family: DM Sans;
+  color: hsla(0, 0.00%, 20.00%, 1.00);
+  font-size: 1.75vw;
+  font-weight: 400;
+  background-clip: border-box;
+  object-fit: fill;
+  text-align: center;
+  flex-shrink: 1;
+}
+
+.upload-photo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20vw;
+  cursor: pointer;
+}
+.right {
+  display: flex;
+  height: 12vh;
+  padding-right: 10vw;
+}
+.url {
+  display: flex;
+  justify-content: space-between;
+  width: 20vw;
+  height: 10vh;
+}
+.enter-url {
+  display: block;
+  width: 20vw;
+}
+
+.lower {
+  display: flex;
+  flex-grow: 5;
+  justify-content: space-between;
+}
+
+.previews {
+  display: flex;
+  flex-wrap: wrap;
+  flex-grow: 8;
+  justify-content: center;
+}
+
+.preview {
+  flex-shrink: 1;
+  display: block;
+  height: 15vh;
+  border-radius: 30px;
+  margin: 1vw 1% 1vw 1%;
+  background-clip: border-box;
+  object-fit: fill;
+}
+
+.analyze {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 10vw;
+}
+
+.analyze-button {
+  display: block;
+  width: 5vw;
+  height: 5vw;
+  background-color: transparent;
+  background-image: url("https://uploads-ssl.webflow.com/611968865cc3c3243e59ac45/612712ec7bdc1350d425d696_analyze%20button.svg");
+  background-position: 0px 0px;
+  background-size: contain;
+}
+
+.lab {
+  display: flex;
+  width: 90vw;
+  height: 80vh;
+  flex-wrap: nowrap;
+}
+
+.visual {
+  height: 80vh;
+  width: 90vw;
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+}
+
+.we-found {
+  height: 5vh;
+  padding-top: 2.5vh;
+  padding-bottom: 2.5vh;
+  font-family: DM Sans;
+  color: hsla(0, 0.00%, 20.00%, 1.00);
+  font-size: 4vh;
+  font-style: normal;
+  text-align: center;
+}
+
+.img-nav {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 20vw;
+  height: 5vh;
+  margin-top: 2.5vh;
+  margin-bottom: 2.5vh;
+}
+
+.image-number {
+  display: flex;
+  align-items: center;
+  height: 2vw;
+  font-family: DM Sans;
+  font-size: 2.5vh;
+  text-align: center;
+}
+
+.last, .next {
+  display: flex;
+  align-items: center;
+  height: 2vw;
+  width: 2vw;
+  border-style: solid;
+  border-width: 1px;
+  border-color: transparent;
+  border-radius: 3vw;
+  background-color: transparent;
+  background-image: url("https://uploads-ssl.webflow.com/611968865cc3c3243e59ac45/612712ecf7057f1e84021b6d_last%20button.svg");
+  background-size: 2vw 2vw;
+}
+
+.last {
+  margin-right: 2vw;
+  background-image: url("https://uploads-ssl.webflow.com/611968865cc3c3243e59ac45/612712ecf7057f1e84021b6d_last%20button.svg");
+}
+
+.next {
+  margin-left: 2vw;
+  background-image: url("https://uploads-ssl.webflow.com/611968865cc3c3243e59ac45/612712ec46bf877bc0d63dfe_next%20button.svg");
+}
+
+.algae {
+  height: 50vh;
+  flex-shrink: 1;
+}
+
+.show-pictures {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 10vh;
+  width: 50vw;
+  flex-shrink: 1;
+  font-size: 1.75vw;
+}
+
+.image-type {
+  height: 8vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-family: DM Sans;
+  margin-left: 5vw;
+  margin-right: 5vw;
+  color: hsla(0, 100.00%, 0.00%, 1.00);
+  font-size: 3vh;;
+}
+
+.info {
+  display: flex;
+  height: 60vh;
+  margin-top: 10vh;
+  margin-bottom: 10vh;
+  background-color: white;
+}

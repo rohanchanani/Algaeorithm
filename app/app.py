@@ -158,22 +158,22 @@ def load_response(key, filename, filedata):
         try:
             img = np.asarray(io.imread(filename))
         except:
-            final_data[key][filename]["count"] = "There was an error processing {}.".format(filename)
+            final_data[key][filename]["count"] = "{} (error)".format(filename)
             return 0
     else:  
         try:
             img = np.asarray(Image.open(BytesIO(filedata.read())))
         except:
-            final_data[key][filename]["count"] = "There was an error processing {}.".format(filename)
+            final_data[key][filename]["count"] = "{} (error)".format(filename)
             return 0
     try:
         cell_results = count_cells(img)
     except:
-        final_data[key][filename]["count"] = "There was an error processing {}.".format(filename)
+        final_data[key][filename]["count"] = "{} (error)".format(filename)
         final_data[key][filename]["image"] = image_array_to_base64(img)
         return 0
     final_data[key][filename] = {}
-    final_data[key][filename]["count"] = "There are {} cells in {}.".format(len(cell_results[0]), filename)
+    final_data[key][filename]["count"] = "{} ({} cells)".format(filename, len(cell_results[0]))
     final_data[key][filename]["image"] = image_array_to_base64(img)
     final_data[key][filename]["outlines"] = annotate_image(img, cell_results)
     final_data[key][filename]["circles"] = annotate_image(img, cell_results, True)
