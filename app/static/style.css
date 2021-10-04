@@ -204,7 +204,7 @@ a, button {
     background-image: url("https://uploads-ssl.webflow.com/611968865cc3c3243e59ac45/612712ec7bdc1350d425d696_analyze%20button.svg");
     background-position: 0px 0px;
     background-size: contain;
-    transition-property: margin-left;
+    transition-property: all;
     transition-duration: 300ms;
     transition-timing-function: ease;
   }
@@ -245,7 +245,7 @@ a, button {
   
   .last:hover {
     background-color: hsla(0, 0.00%, 20.00%, 1.00);
-    background-image: url("https://uploads-ssl.webflow.com/611968865cc3c3243e59ac45/612705f074747984bc0827ee_last%20button(white).svg")e;
+    background-image: url("https://uploads-ssl.webflow.com/611968865cc3c3243e59ac45/612705f074747984bc0827ee_last%20button(white).svg");
     color: hsla(0, 0.00%, 100.00%, 1.00);
   }
   
