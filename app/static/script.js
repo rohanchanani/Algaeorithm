@@ -4,6 +4,7 @@ let fileList = document.getElementById("fileList");
 let urlList = document.getElementById("urlList");
 let fileInput = new FormData();
 let urlToSubmit = [];
+let parsedResponse = {};
 
 
 const addURL = () => {
@@ -52,9 +53,20 @@ const getFilename = (fullName, method, nameType) => {
     return filename.slice(0, filename.lastIndexOf(".")) + method + filename.slice(filename.lastIndexOf("."));
 }
 
+const changePalette = (elementId) => {
+    if (document.getElementById(elementId).getAttribute("class") == "palette") {
+        return;
+    }
+    let allPalettes = ["inputInfo", "overview", "resultsInfo"];
+    allPalettes.splice(allPalettes.indexOf(elementId), 1)
+    for (let deleteId of allPalettes) {
+        document.getElementById(deleteId).setAttribute("class", "hidden");
+    }
+    document.getElementById(elementId).setAttribute("class", "palette");
+}
+
 const changeImage = (change) => {
-    imageIndex += change;
-    displayImage(imageIndex, "Image");
+    displayImage(imageIndex + change, "Image");
 }
 
 const setImage = (index, method) => {
@@ -63,8 +75,8 @@ const setImage = (index, method) => {
 }
 
 const displayImage = (imagesIndex, method)  => {
-    document.getElementById("inputInfo").setAttribute("class", "hidden");
-    document.getElementById("resultsInfo").setAttribute("class", "palette");
+    imageIndex = imagesIndex;
+    changePalette("resultsInfo");
     //let downloadLink = document.getElementById("resultsDownload");
     //downloadLink.innerHTML = "";
     let count = imagesList[imagesIndex][0]["count"];
@@ -90,7 +102,7 @@ const displayImage = (imagesIndex, method)  => {
     document.getElementById("resultsCount").innerHTML = count;
     if (count.includes("There was an error processing")) {
         document.getElementById("resultsImage").removeAttribute("src");
-        if (imagesList[imagesIndex][0].keys().length > 1) {
+        if (Object.keys(imagesList[imagesIndex][0]).length > 1) {
             setImage(imagesIndex, "Image");
         }
     }
@@ -122,8 +134,7 @@ const displayImage = (imagesIndex, method)  => {
         let anchor = document.getElementById("nextImage");
         anchor.setAttribute("onclick", "changeImage(1)");
         anchor.setAttribute("class", "next");
-    }
-    
+    }    
 }
 
 const addInformation = (responseObject, imageType) => {
@@ -132,6 +143,61 @@ const addInformation = (responseObject, imageType) => {
     }
     for (let key of Object.keys(responseObject)) {
         imagesList.push([responseObject[key], key, imageType]);
+    }
+}
+
+const setGraph = (selectedGraph, metric) => {
+    let graphList = Object.keys(parsedResponse["graphs"][metric]);
+    graphList.splice(graphList.indexOf(selectedGraph), 1);
+    document.getElementById(metric.toLowerCase()+"s-graph").src = "data:image/jpeg;base64,"+parsedResponse["graphs"][metric][selectedGraph];
+    let changeGraph = document.getElementById(metric.toLowerCase()+"s-change");
+    changeGraph.innerHTML = "";
+    for (let otherGraph of graphList) {
+        let graphAnchor = document.createElement("a");
+        graphAnchor.innerHTML = "Show " + otherGraph;
+        graphAnchor.setAttribute("onclick", "setGraph('" + otherGraph + "', '" + metric + "')");
+        console.log("setGraph('" + otherGraph + "', '" + metric + "')");
+        graphAnchor.setAttribute("class", "graph-button");
+        changeGraph.appendChild(graphAnchor);
+    }
+}
+
+const setOverview = () => {
+    changePalette("overview");
+    if (parsedResponse["stats"] == "No data available") {
+        document.getElementById("counts-stats").innerHTML = "No data available";
+        document.getElementById("concentrations-stats").innerHTML = "No data available";
+        document.getElementById("counts-graph").src = "static/graph_not_available.jpg";
+        document.getElementById("concentrations-graph").src = "static/graph_not_available.jpg";
+    } else {
+        document.getElementById("counts-stats").innerHTML = "";
+        document.getElementById("concentrations-stats").innerHTML = "";
+        let units = {"Count": " cells", "Concentration": " cells/mL (millions)"};
+        for (let metric of ["Count", "Concentration"]) {
+            let firstDiv = document.createElement("div");
+            firstDiv.setAttribute("class", "stats-section");
+            for (let stat of ["Mean", "Range", "Standard Deviation"]) {
+                let statBox = document.createElement("div");
+                statBox.setAttribute("class", "stat-box");
+                statBox.innerHTML = stat + ": " + parsedResponse["stats"][metric][stat] + units[metric];
+                firstDiv.appendChild(statBox);
+            }
+            document.getElementById(metric.toLowerCase()+"s-stats").appendChild(firstDiv);
+            let secondDiv = document.createElement("div");
+            secondDiv.setAttribute("class", "stats-section");
+            let medianBox = document.createElement("div");
+            medianBox.setAttribute("class", "stat-box");
+            let iqrBox = document.createElement("div");
+            iqrBox.setAttribute("class", "stat-box");
+            iqrList = parsedResponse["stats"][metric]["iqr"]
+            medianBox.innerHTML = "Median: " + iqrList[1] + units[metric];
+            iqrBox.innerHTML = "Interquartile Range: " + iqrList[2] + " - " + iqrList[0] + "(" + (parseInt(iqrList[2]) - parseInt(iqrList[0])).toString() + ")" + units[metric];
+            secondDiv.appendChild(medianBox);
+            secondDiv.appendChild(iqrBox);
+            document.getElementById(metric.toLowerCase()+"s-stats").appendChild(secondDiv);
+            let graphs = Object.keys(parsedResponse["graphs"]["Count"]);
+            setGraph(graphs[0], metric);
+        }
     }
 }
 
@@ -145,10 +211,11 @@ const loadInformation = () => {
         if (request.readyState == 4) {
             imagesIndex = 0;
             imagesList = [];
-            let parsedResponse = JSON.parse(request.response);
+            parsedResponse = JSON.parse(request.response);
+            console.log(parsedResponse["stats"])
             addInformation(parsedResponse["file_counts"], "file");
             addInformation(parsedResponse["url_counts"], "url");
-            displayImage(0, "Image");
+            setOverview();
         }    
     }
     fileInput.set("url", JSON.stringify(urlToSubmit));

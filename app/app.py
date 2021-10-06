@@ -14,10 +14,10 @@ from skimage.color import rgb2gray
 from skimage.feature import peak_local_max
 from skimage.segmentation import watershed
 from scipy import ndimage, stats
-import math
 import cv2
 import json
 import base64
+import math
 
 app = Flask(__name__)
 
@@ -109,9 +109,12 @@ def count_cells(image, clear_background=True, block_size=35, min_ratio=0.1, max_
     return all_contours, coords
 
 
-def get_img_from_fig(fig, dpi=180):
+def get_img_from_fig(fig, tight=True, dpi=180):
     buf = BytesIO()
-    fig.savefig(buf, format="jpeg", dpi=dpi)
+    if tight:
+        fig.savefig(buf, format="jpeg", dpi=dpi, bbox_inches='tight', pad_inches=0)
+    else:
+        fig.savefig(buf, format="jpeg", dpi=dpi)
     buf.seek(0)
     img_arr = np.frombuffer(buf.getvalue(), dtype=np.uint8)
     buf.close()
@@ -126,6 +129,7 @@ def annotate_image(image, outlines, circles=False):
     if circles:
         fig = plt.figure()
         ax = plt.axes(frameon=False)
+        ax.axis("off")
         ax.get_xaxis().tick_bottom()
         ax.axes.get_yaxis().set_visible(False)
         ax.axes.get_xaxis().set_visible(False)
@@ -152,7 +156,12 @@ def image_array_to_base64(arr):
     file_object.close()
     return img_str.decode("utf-8")
 
-def load_response(key, filename, filedata):
+def calculate_concentration(image, contours, cell_volume, mm_depth):
+    avg_area = np.mean(list(map(cv2.contourArea, contours)))
+    expected_area = (((cell_volume * 3 / 4 / math.pi) ** (1/3)) ** 2) * math.pi
+    return len(contours) / ((expected_area / avg_area * image.shape[0] * image.shape[1]) * 10 ** -8 * mm_depth / 10)
+
+def load_response(key, filename, filedata, counts, concentrations):
     final_data[key][filename] = {}
     if filename==filedata:
         try:
@@ -168,6 +177,7 @@ def load_response(key, filename, filedata):
             return 0
     try:
         cell_results = count_cells(img)
+        concentration = calculate_concentration(img, cell_results[0], 271.8, 0.1) / 1000000
     except:
         final_data[key][filename]["count"] = "{} (error)".format(filename)
         final_data[key][filename]["image"] = image_array_to_base64(img)
@@ -177,8 +187,31 @@ def load_response(key, filename, filedata):
     final_data[key][filename]["image"] = image_array_to_base64(img)
     final_data[key][filename]["outlines"] = annotate_image(img, cell_results)
     final_data[key][filename]["circles"] = annotate_image(img, cell_results, True)
+    final_data[key][filename]["concentration"] = concentration
+    counts.append(len(cell_results[0]))
+    concentrations.append(concentration)
     
+def boxplot(data, metric):
+    units = {"Count": "# of Cells", "Concentration": "Cells / mL (millions)"}
+    fig = plt.figure()
+    ax = plt.axes()
+    ax.boxplot(data, vert=False, patch_artist=True)
+    ax.set_xlabel(units[metric])
+    ax.yaxis.set_ticklabels([])
+    ax.set_title("Cell " + metric + " Box Plot")
+    fig.add_axes(ax)
+    return(image_array_to_base64(get_img_from_fig(fig, False)))
 
+def histogram(data, metric):
+    units = {"Count": "# of Cells", "Concentration": "Cells / mL (millions)"}
+    fig = plt.figure()
+    ax = plt.axes()
+    ax.hist(data)
+    ax.set_xlabel(units[metric])
+    ax.set_ylabel("Frequency")
+    ax.set_title("Cell " + metric + " Histogram")
+    fig.add_axes(ax)
+    return(image_array_to_base64(get_img_from_fig(fig, False)))   
 
 @app.route('/')
 def index_get():
@@ -189,8 +222,15 @@ def index_get():
 def index_post():        
     global final_data
     final_data = {"file_counts": {}, "url_counts": {}}
+    counts = []
+    concentrations = []
     for filename, file in request.files.items():
-        load_response("file_counts", filename, file)
+        load_response("file_counts", filename, file, counts, concentrations)
     for image_url in json.loads(request.form.get("url")):
-        load_response("url_counts", image_url, image_url)
+        load_response("url_counts", image_url, image_url, counts, concentrations)
+    if len(concentrations) > 1 and len(counts) > 1:
+        final_data["stats"] = {"Count": {"Mean": str(round(np.mean(counts), 2)), "Range": str(round(np.ptp(counts), 2)), "Standard Deviation": str(round(np.std(counts), 2)), "iqr": list(map(lambda x: str(round(x, 2)), np.percentile(counts, [25, 50, 75])))}, "Concentration": {"Mean": str(round(np.mean(concentrations), 2)), "Range": str(round(np.ptp(concentrations), 2)), "Standard Deviation": str(round(np.std(concentrations), 2)), "iqr": list(map(lambda x: str(round(x, 2)), np.percentile(concentrations, [25, 50, 75])))}}
+        final_data["graphs"] = {"Count": {"Box Plot": boxplot(counts, "Count"), "Histogram": histogram(counts, "Count")}, "Concentration": {"Box Plot": boxplot(concentrations, "Concentration"), "Histogram": histogram(concentrations, "Concentration")}}
+    else:
+        final_data["stats"] = "No data available"
     return final_data

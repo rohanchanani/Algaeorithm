@@ -156,22 +156,25 @@ a, button {
 }
 
 .visual {
-  height: 80vh;
+  height: 75vh;
   width: 90vw;
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
 }
 
-.results-heading {
+.results-heading, .stats-title {
   height: 5vh;
   padding-top: 2.5vh;
   padding-bottom: 2.5vh;
   font-family: DM Sans;
   color: hsla(0, 0.00%, 20.00%, 1.00);
-  font-size: 4vh;
   font-style: normal;
   text-align: center;
+}
+
+.stats-title {
+  width: 45vw;
 }
 
 .img-nav {
@@ -231,6 +234,7 @@ a, button {
 .algae {
   height: 50vh;
   flex-shrink: 1;
+  max-width: 90vw;
 }
 
 .show-pictures {
@@ -256,33 +260,82 @@ a, button {
   font-size: 3vh;;
 }
 
-.info {
+.main-overview {
   display: flex;
-  height: 60vh;
-  margin-top: 10vh;
-  margin-bottom: 10vh;
-  background-color: white;
+  height: 75vh;
+  width: 90vw;
+  align-items: center;
 }
-
 
 .stats-info {
   display: flex;
   justify-content: center;
+  flex-flow: column nowrap;
   width: 45vw;
-  height: 30vh;
+  height: 25vh;
 }
 
 .graphs {
   display: flex;
-  justify-content: center;
+  align-items: center;
+  justify-content: flex-end;
+  flex-flow: column nowrap;
   width: 45vw;
-  height: 45vh;
+  height: 35vh;
+}
+
+.see-images, .see-overview {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 5vh;
+}
+
+.next-page, .show-overview {
+  font-family: DM Sans;
+  font-size: 3vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .counts, .concentrations {
   width: 45vw;
   height: 75vh;
   display: flex;
-  flex-flow: column, nowrap;
+  flex-flow: column nowrap;
+  align-items: center;
+}
+
+.stats-section {
+  display: flex;
+  justify-content: space-around;
+  height: 12.5vh;
+  width: 45vw;
+}
+
+.stat-box {
+  font-family: DM Sans;
+  flex-shrink: 1;
+  max-height: 10vh;
+}
+
+.graph {
+  height: 35vh;
+  max-width: 40vw;
+}
+
+.change-graph {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 5vh;
+}
+
+.graph-button {
+  font-family: DM Sans;
+  font-size: 2vh;
+  display: flex;
+  justify-content: center;
   align-items: center;
 }

@@ -41,9 +41,34 @@
                 </div>
             </div>
         </div>
+        <div id="overview" class="hidden">
+            <div id="main-overview" class="main-overview">
+                <div id="counts" class="counts">
+                    <div class="stats-title">Cell Count Information</div>
+                    <div id="counts-stats" class="stats-info">
+                    </div>
+                    <div id="counts-graphs" class="graphs">
+                        <img id="counts-graph" class="graph">
+                        <div id="counts-change" class="change-graph"></div>
+                    </div>
+                </div>
+                <div id="concentrations" class="concentrations">
+                    <div class="stats-title">Cell Concentration Information</div>
+                    <div id="concentrations-stats" class="stats-info">
+                    </div>
+                    <div id="concentrations-graphs" class="graphs">
+                      <img id="concentrations-graph" class="graph">
+                      <div id="concentrations-change" class="change-graph"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="see-images" class="see-images">
+                <a class="next-page" onclick="displayImage(0, 'Image')">View your images</a>
+            </div>
+        </div>
         <div id="resultsInfo" class="hidden">
             <div id="visual" class="visual">
-                <div id="resultsCount" class="we-found"></div> 
+                <div id="resultsCount" class="results-heading"></div> 
                 <img id="resultsImage" class="algae"/>
                 <div id="show-pictures" class="show-pictures"></div>
                 <div class="hidden" id="img-nav">
@@ -51,6 +76,9 @@
                     <div id="image-number" class="image-number"></div>
                     <a id="nextImage" class="hidden"></a>
                 </div>
+            </div>
+            <div id="see-overview" class="see-overview">
+                <a class="show-overview" onclick="setOverview()">View overview</a>
             </div>
         </div>
     </body>
