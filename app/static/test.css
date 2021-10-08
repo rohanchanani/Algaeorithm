@@ -32,6 +32,10 @@ a, button {
   text-align: center;
 }
 
+#algaeorithm {
+  color: black;
+}
+
 .palette {
   display: flex;
   flex-flow: column nowrap;
@@ -122,9 +126,15 @@ a, button {
   display: block;
   height: 15vh;
   border-radius: 30px;
+  border: .5vh solid transparent;
   margin: 1vw 1% 1vw 1%;
   background-clip: border-box;
   object-fit: fill;
+  cursor: pointer;
+}
+
+.preview:hover {
+  border: .5vh solid red;
 }
 
 .analyze {
@@ -195,7 +205,7 @@ a, button {
   text-align: center;
 }
 
-.last, .next {
+.last, .next, .invisible {
   display: flex;
   align-items: center;
   height: 2vw;
@@ -205,7 +215,6 @@ a, button {
   border-color: transparent;
   border-radius: 3vw;
   background-color: transparent;
-  background-image: url("https://uploads-ssl.webflow.com/611968865cc3c3243e59ac45/612712ecf7057f1e84021b6d_last%20button.svg");
   background-size: 2vw 2vw;
 }
 
@@ -229,6 +238,12 @@ a, button {
 .next {
   margin-left: 2vw;
   background-image: url("https://uploads-ssl.webflow.com/611968865cc3c3243e59ac45/612712ec46bf877bc0d63dfe_next%20button.svg");
+}
+
+.invisible {
+  margin-left: 1vw;
+  margin-right: 1vw;
+  cursor: default;
 }
 
 .algae {
@@ -318,10 +333,12 @@ a, button {
   font-family: DM Sans;
   flex-shrink: 1;
   max-height: 10vh;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .graph {
-  height: 35vh;
+  max-height: 35vh;
   max-width: 40vw;
 }
 
@@ -338,4 +355,35 @@ a, button {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.loading-top {
+  display: flex;
+  width: 90vw;
+  height: 30vh;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-text {
+  width: 20vw;
+  height: 20vh;
+  margin: 5vh 5vw;
+  font-family: DM Sans;
+  font-size: 5vh;
+  text-align: center;
+}
+
+.loading-bottom {
+  display: flex;
+  width: 90vw;
+  height: 50vh;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-image {
+  max-height: 40vh;
+  max-width: 20vw;
+  margin: 5vh 5vw;
 }

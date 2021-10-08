@@ -16,7 +16,7 @@
 <body>
     <body class="body">
         <div class="header">
-            <h1 class="logo">Algaeorithm</h1>
+            <h1 class="logo"><a href="/" id="algaeorithm">Algaeorithm</a></h1>
         </div>
         <div id="inputInfo" class="palette">
             <div class="instruction">
@@ -36,9 +36,21 @@
             <div class="lower">
                 <div class="previews" id="previews">
                 </div>
-                <div class="analyze">
+                <div id="analyze-button" class="hidden">
                     <a onclick="loadInformation()" class="analyze-button"></a>
                 </div>
+            </div>
+        </div>
+        <div id="loading" class="hidden">
+            <div class="loading-top">
+                <div class="loading-text">Counting Cells</div>
+                <div class="loading-text">Making Calculations</div>
+                <div class="loading-text">Creating Graphs</div>
+            </div>
+            <div class="loading-bottom">
+                <img class="loading-image" src="static/counting_cells.jpg">
+                <img class="loading-image" src="static/making_calculations.jpg">
+                <img class="loading-image" src="static/creating_graphs.jpg">
             </div>
         </div>
         <div id="overview" class="hidden">
@@ -63,19 +75,19 @@
                 </div>
             </div>
             <div id="see-images" class="see-images">
-                <a class="next-page" onclick="displayImage(0, 'Image')">View your images</a>
+                <a class="next-page" onclick="displayImage(0, 'Outlines')">View your images</a>
             </div>
         </div>
         <div id="resultsInfo" class="hidden">
             <div id="visual" class="visual">
-                <div id="resultsCount" class="results-heading"></div> 
-                <img id="resultsImage" class="algae"/>
-                <div id="show-pictures" class="show-pictures"></div>
+                <div id="resultsCount" class="results-heading"></div>
                 <div class="hidden" id="img-nav">
                     <a id="lastImage" class="hidden"></a>
                     <div id="image-number" class="image-number"></div>
                     <a id="nextImage" class="hidden"></a>
-                </div>
+                </div> 
+                <img id="resultsImage" class="algae"/>
+                <div id="show-pictures" class="show-pictures"></div>
             </div>
             <div id="see-overview" class="see-overview">
                 <a class="show-overview" onclick="setOverview()">View overview</a>

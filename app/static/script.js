@@ -9,17 +9,27 @@ let parsedResponse = {};
 
 const addURL = () => {
     if (!document.getElementById("urlInput").value){
-        alert("Please enter a url");
+        alert("Please enter a URL");
     }
     else {
-        urlToSubmit.push(document.getElementById("urlInput").value);
+        let givenURL = document.getElementById("urlInput").value;
+        if (urlToSubmit.includes(givenURL)) {
+            alert("Please enter a unique URL");
+            document.getElementById("urlInput").value = "";
+            return;
+        }
+        urlToSubmit.push(givenURL);
         let previewImage = document.createElement("img");
         previewImage.setAttribute("class", "preview");
-        previewImage.src = document.getElementById("urlInput").value;
+        previewImage.src = givenURL;
+        previewImage.title = givenURL;
+        previewImage.onclick = previewImage.onclick = "deleteImage('url', '" + givenURL + "')";
         document.getElementById("urlInput").value = "";
         document.getElementById("previews").appendChild(previewImage);
+        document.getElementById("analyze-button").setAttribute("class", "analyze");
     }
 }
+
 const addFileToList = () => {
     const stagingInput = document.getElementById("staging");
     if (stagingInput.files.length===0) {
@@ -27,19 +37,42 @@ const addFileToList = () => {
     }
     else {
         for (let newFile of stagingInput.files) {
+            if (fileInput.has(newFile.name)) {
+                alert(newFile.name + " has already been uploaded");
+                continue;
+            }
             fileInput.append(newFile.name, newFile);
             /*let previewFigure = document.createElement("figure");
             previewFigure.setAttribute("class", "preview");*/
             let previewImage = document.createElement("img");
             previewImage.setAttribute("class", "preview");
+            previewImage.setAttribute("id", "img-"+newFile.name);
             previewImage.src = URL.createObjectURL(newFile);
+            previewImage.title = newFile.name;
+            previewImage.setAttribute("onclick", "deleteImage('file', '" + newFile.name + "')");
             /*previewFigure.appendChild(previewImage);
             let previewFigcaption = document.createElement("figcaption");
             previewFigcaption.innerHTML = "Delete " + newFile.name;
             previewFigcaption.setAttribute("onclick", "deleteFile()");
             previewFigure.appendChild(previewFigcaption);*/
             document.getElementById("previews").appendChild(previewImage);
+            document.getElementById("analyze-button").setAttribute("class", "analyze");
+            console.log("made it here");
         }
+    }
+}
+
+const deleteImage = (imageType, imageName) => {
+    let imageElement = document.getElementById("img-"+imageName);
+    imageElement.parentElement.removeChild(imageElement);
+    if (imageType=="file") {
+        fileInput.delete(imageName);
+    }
+    else {
+        urlToSubmit.splice(urlToSubmit.indexOf(imageName), 1);
+    }
+    if (!document.getElementById("previews").children.length) {
+        document.getElementById("analyze-button").setAttribute("class", "hidden");
     }
 }
 
@@ -57,7 +90,7 @@ const changePalette = (elementId) => {
     if (document.getElementById(elementId).getAttribute("class") == "palette") {
         return;
     }
-    let allPalettes = ["inputInfo", "overview", "resultsInfo"];
+    let allPalettes = ["inputInfo", "overview", "resultsInfo", "loading"];
     allPalettes.splice(allPalettes.indexOf(elementId), 1)
     for (let deleteId of allPalettes) {
         document.getElementById(deleteId).setAttribute("class", "hidden");
@@ -66,12 +99,13 @@ const changePalette = (elementId) => {
 }
 
 const changeImage = (change) => {
-    displayImage(imageIndex + change, "Image");
+    displayImage(imageIndex + change, "Outlines");
 }
 
 const setImage = (index, method) => {
     let resultsImage = document.getElementById("resultsImage");
     resultsImage.setAttribute("src", "data:image/jpeg;base64,"+imagesList[index][0][method.toLowerCase()])
+    resultsImage.setAttribute("title", imagesList[index][1]);
 }
 
 const displayImage = (imagesIndex, method)  => {
@@ -86,7 +120,6 @@ const displayImage = (imagesIndex, method)  => {
     let i = 0;
     while (i < resultsElement.childNodes.length) {
         if (resultsElement.childNodes[i].nodeName.toLowerCase() == "a") {
-            console.log(resultsElement.childNodes[i].getAttribute("id"));
             resultsElement.childNodes[i].remove();
         }
         else {
@@ -94,13 +127,13 @@ const displayImage = (imagesIndex, method)  => {
         }
     }
     document.getElementById("img-nav").setAttribute("class", "hidden");
-    document.getElementById("lastImage").setAttribute("class", "hidden");
-    document.getElementById("nextImage").setAttribute("class", "hidden");
+    document.getElementById("lastImage").setAttribute("class", "invisible");
+    document.getElementById("nextImage").setAttribute("class", "invisible");
     document.getElementById("show-pictures").innerHTML = "";
     document.getElementById("image-number").innerHTML = "";
     //document.getElementById("resultsTitle").innerHTML = location;
     document.getElementById("resultsCount").innerHTML = count;
-    if (count.includes("There was an error processing")) {
+    if (count.includes("error")) {
         document.getElementById("resultsImage").removeAttribute("src");
         if (Object.keys(imagesList[imagesIndex][0]).length > 1) {
             setImage(imagesIndex, "Image");
@@ -156,7 +189,6 @@ const setGraph = (selectedGraph, metric) => {
         let graphAnchor = document.createElement("a");
         graphAnchor.innerHTML = "Show " + otherGraph;
         graphAnchor.setAttribute("onclick", "setGraph('" + otherGraph + "', '" + metric + "')");
-        console.log("setGraph('" + otherGraph + "', '" + metric + "')");
         graphAnchor.setAttribute("class", "graph-button");
         changeGraph.appendChild(graphAnchor);
     }
@@ -191,7 +223,7 @@ const setOverview = () => {
             iqrBox.setAttribute("class", "stat-box");
             iqrList = parsedResponse["stats"][metric]["iqr"]
             medianBox.innerHTML = "Median: " + iqrList[1] + units[metric];
-            iqrBox.innerHTML = "Interquartile Range: " + iqrList[2] + " - " + iqrList[0] + "(" + (parseInt(iqrList[2]) - parseInt(iqrList[0])).toString() + ")" + units[metric];
+            iqrBox.innerHTML = "Interquartile Range: " + iqrList[2] + " - " + iqrList[0] + " (" + (parseInt(iqrList[2]) - parseInt(iqrList[0])).toString() + ")" + units[metric];
             secondDiv.appendChild(medianBox);
             secondDiv.appendChild(iqrBox);
             document.getElementById(metric.toLowerCase()+"s-stats").appendChild(secondDiv);
@@ -212,7 +244,6 @@ const loadInformation = () => {
             imagesIndex = 0;
             imagesList = [];
             parsedResponse = JSON.parse(request.response);
-            console.log(parsedResponse["stats"])
             addInformation(parsedResponse["file_counts"], "file");
             addInformation(parsedResponse["url_counts"], "url");
             setOverview();
@@ -221,10 +252,8 @@ const loadInformation = () => {
     fileInput.set("url", JSON.stringify(urlToSubmit));
     request.open("POST", "/");
     request.send(fileInput);
-    document.getElementById("resultsImage").setAttribute("src", "static/person_counting.jpg");
-    //document.getElementById("resultsTitle").innerHTML = "Counting Cells";
+    changePalette("loading");
 }
-
 document.addEventListener("keydown", function(event) {
     if (event.key === "Enter") {
         if (event.ctrlKey) {
