@@ -1,0 +1,137 @@
+.lab {
+  display: flex;
+  align-items: center;
+}
+
+.visual {
+height: 80vh;
+display: flex;
+width: 67.5vw;
+flex-flow: column nowrap;
+align-items: center;
+justify-content: center;
+}
+
+.img-nav {
+  margin-top: 2.5vh;
+  --img-nav-height: 5vh;
+  --inner-nav-height: calc(var(--img-nav-height) * 4/5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: var(--img-nav-height);
+}
+
+.image-number {
+  display: flex;
+  align-items: center;
+  height: var(--inner-nav-height);
+  font-family: DM Sans;
+  font-size: min(max(2vw, calc(var(--img-nav-height)*3/5)), 36px);
+  text-align: center;
+}
+
+.last, .next {
+  display: flex;
+  align-items: center;
+  height: var(--inner-nav-height);
+  width: var(--inner-nav-height);
+  border-style: solid;
+  border-width: 1px;
+  border-color: transparent;
+  border-radius: 3vw;
+  background-color: transparent;
+  background-image: url("https://uploads-ssl.webflow.com/611968865cc3c3243e59ac45/612712ecf7057f1e84021b6d_last%20button.svg");
+  background-size: var(--inner-nav-height) var(--inner-nav-height);
+  transition-property: all;
+  transition-duration: 300ms;
+  transition-timing-function: ease;
+}
+
+.next:hover {
+background-color: hsla(0, 0.00%, 20.00%, 1.00);
+background-image: url("https://uploads-ssl.webflow.com/611968865cc3c3243e59ac45/612705f07bdc139887258b82_next%20button(white).svg");
+color: hsla(0, 0.00%, 20.00%, 1.00);
+}
+
+.last:hover {
+background-color: hsla(0, 0.00%, 20.00%, 1.00);
+background-image: url("https://uploads-ssl.webflow.com/611968865cc3c3243e59ac45/612705f074747984bc0827ee_last%20button(white).svg");
+color: hsla(0, 0.00%, 100.00%, 1.00);
+}
+
+.last {
+margin-right: 2vw;
+background-image: url("https://uploads-ssl.webflow.com/611968865cc3c3243e59ac45/612712ecf7057f1e84021b6d_last%20button.svg");
+}
+
+.next {
+margin-left: 2vw;
+background-image: url("https://uploads-ssl.webflow.com/611968865cc3c3243e59ac45/612712ec46bf877bc0d63dfe_next%20button.svg");
+}
+
+.image-container {
+  --results-image-height: 65vh;
+  --results-image-width: 67.5vw;
+  height: var(--results-image-height);
+  width: var(--results-image-width);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.algae {
+    width: 62.5vw;
+    height: 60vh;
+    object-fit: contain;
+    flex-shrink: 1;
+    margin: 2.5vh 2.5vw;
+}
+
+.show-pictures {
+display: flex;
+justify-content: center;
+align-items: center;
+height: 5vh;
+margin-bottom: 2.5vh;
+width: 67.5vw;
+flex-shrink: 1;
+}
+
+.image-type {
+height: 5vh;
+display: flex;
+justify-content: center;
+align-items: center;
+text-align: center;
+font-family: DM Sans;
+margin-left: 5vw;
+margin-right: 5vw;
+padding: 9px 15px 9px 15px;
+color: hsla(0, 100.00%, 0.00%, 1.00);
+font-size: min(max(2vw, 2vh), 30px);
+border-radius: 2vw;
+transition-property: all;
+transition-duration: 300ms;
+transition-timing-function: ease;
+}
+
+.image-type:hover {
+background-color: hsla(0, 0.00%, 20.00%, 1.00);
+color: hsla(0, 0.00%, 100.00%, 1.00);
+}
+
+.info {
+display: flex;
+width: 25%;
+height: 80vh;
+align-items: center;
+justify-content: center;
+border-radius: 2vw;
+background-color: hsla(0, 0.00%, 100.00%, 0.50);
+}
+
+.we-found {
+font-family: DM Sans;
+font-size: min(6vh, 60px);
+}

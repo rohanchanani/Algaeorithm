@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algaeorithm</title>
+    <script
+        src="https://code.jquery.com/jquery-3.6.0.js"
+        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+        crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/input.css">
+    <link rel="stylesheet" href="static/results.css">
+    <link rel="stylesheet" href="static/loading.css">
+    <link rel="stylesheet" href="static/stats.css">
+    <link rel="stylesheet" href="static/misc.css">
+</head>
+<body>
+    <body class="body">
+        <div class="header">
+            <a href="/" id="algaeorithm"><h1 class="logo">Algaeorithm</h1></a>
+        </div>
+        <div id="inputInfo" class="palette">
+            <h1 class="instruction">To begin, choose an option below</h1>
+            <div id="upper" class="upper" style="margin-bottom: 20vh;">
+                <div class="left">
+                    <label for="staging" class="upload-photo input-values">upload a photo</label>
+                    <input id="staging" type="file" class="hidden" accept="image/png, image/jpeg" multiple>
+                </div>
+                <div class="right">
+                    <div class="form url">
+                            <input type="text" maxlength="256" name="url" data-name="url" placeholder="enter a url" id="urlInput" class="enter-url input-values"/>
+                    </div>
+                </div>
+            </div>
+            <div id="lower" class="hidden">
+                <div class="left-margin"></div>
+                <div class="previews" id="previews">
+                </div>
+                <div id="analyze-button" class="analyze">
+                    <a onclick="loadInformation()" class="analyze-button"></a>
+                </div>
+            </div>
+        </div>
+        <div id="loading" class="hidden">
+            <div class="loading-top">
+                <div class="loading-text">Counting Cells</div>
+                <div class="loading-text">Making Calculations</div>
+                <div class="loading-text">Creating Graphs</div>
+            </div>
+            <div class="loading-bottom">
+                <img class="loading-image" src="static/counting_cells.jpg">
+                <img class="loading-image" src="static/making_calculations.jpg">
+                <img class="loading-image" src="static/creating_graphs.jpg">
+            </div>
+        </div>
+        <div id="overview" class="hidden">
+            <div id="main-overview" class="main-overview">
+                <div id="counts" class="counts">
+                    <div class="stats-title">Cell Count Information</div>
+                    <div id="counts-stats" class="stats-info">
+                    </div>
+                    <div id="counts-graphs" class="graphs">
+                        <img id="counts-graph" class="graph">
+                        <div id="counts-change" class="change-graph"></div>
+                    </div>
+                </div>
+                <div id="concentrations" class="concentrations">
+                    <div class="stats-title">Cell Concentration Information</div>
+                    <div id="concentrations-stats" class="stats-info">
+                    </div>
+                    <div id="concentrations-graphs" class="graphs">
+                      <img id="concentrations-graph" class="graph">
+                      <div id="concentrations-change" class="change-graph"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="see-images" class="hidden">
+            <a class="next-page" onclick="displayImage(0, 'Outlines')">View your images</a>
+        </div>
+        <div id="resultsInfo" class="hidden">
+            <div class="lab">
+                <div id="visual" class="visual">
+                    <div class="img-nav" id="img-nav">
+                        <a id="lastImage" class="invisible"></a>
+                        <div id="image-number" class="image-number"></div>
+                        <a id="nextImage" class="invisible"></a>
+                    </div> 
+                    <div class="image-container">
+                        <img id="resultsImage" src="https://photographylife.com/wp-content/uploads/2020/03/Ultra-Wide-Angle-Panoramas-1.jpg" class="algae"/>
+                    </div>
+                    <div id="show-pictures" class="show-pictures"></div>
+                </div>
+                <div class="info">
+                    <h2 id="resultsCount" class="we-found"></h2>
+                </div>
+            </div>
+        </div>
+        <div id="see-overview" class="hidden">
+            <a class="show-overview" onclick="setOverview()">View overview</a>
+        </div>
+    </body>
+</body>
+<script src="static/script.js"></script>
+</html>

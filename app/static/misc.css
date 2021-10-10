@@ -1,0 +1,64 @@
+.hidden {
+    display: none;
+}
+  
+  
+a, button {
+  text-decoration: none;
+  cursor: pointer;
+}
+.body {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-image: linear-gradient(to bottom, #124d5a, hsla(190.83333333333331, 66.67%, 21.18%, 0.25));
+  background-clip: border-box;
+}
+.header {
+  height: 10vh;
+  display: flex;
+  justify-content: center;
+  align-items: center; 
+  margin-bottom: 2.5vh;
+}
+.logo {
+  display: block;
+  height: 8vh;
+  font-family: DM Sans;
+  text-align: center;
+}
+
+#algaeorithm {
+  color: black;
+}
+
+.palette {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: space-around;
+  width: 90vw;
+  height: 80vh;
+  background-color: hsla(0, 0.00%, 100.00%, 0.80);
+  border-radius: 2vw;
+  box-shadow: .1vw .1vw 1.5vw .1vw hsla(190.83333333333331, 66.67%, 21.18%, 0.48);
+  text-align: center;
+}
+
+.see-images, .see-overview {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 5vh;
+}
+
+.next-page, .show-overview {
+  font-family: DM Sans;
+  font-size: 3vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

@@ -1,0 +1,30 @@
+.loading-top {
+  display: flex;
+  width: 90vw;
+  height: 30vh;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-text {
+  width: 20vw;
+  height: 20vh;
+  margin: 5vh 5vw;
+  font-family: DM Sans;
+  font-size: 5vh;
+  text-align: center;
+}
+
+.loading-bottom {
+  display: flex;
+  width: 90vw;
+  height: 50vh;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-image {
+  max-height: 40vh;
+  max-width: 20vw;
+  margin: 5vh 5vw;
+}

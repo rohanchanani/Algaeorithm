@@ -1,0 +1,125 @@
+.instruction {
+  padding-top: 2vh;
+  font-family: DM Sans;
+  font-size: 2vw;
+  font-weight: 300;
+  min-height: 6vh;
+  text-align: center;
+}
+.upper {
+  display: flex;
+  min-height: 32vh;
+  flex-wrap: nowrap;
+  justify-content: space-around;
+  align-items: center;
+}
+
+
+.left {
+  padding-left: 10vw;
+  height: 12vh; 
+}
+
+.input-values {
+  height: 10vh;
+  border-style: solid;
+  border-width: 0.5px;
+  border-radius: 3vw;
+  background-color: hsla(208, 75.69%, 7.97%, 0.00);
+  font-family: DM Sans;
+  color: hsla(0, 0.00%, 20.00%, 1.00);
+  font-size: 1.75vw;
+  font-weight: 400;
+  background-clip: border-box;
+  object-fit: fill;
+  text-align: center;
+  flex-shrink: 1;
+  transition-property: all;
+  transition-duration: 300ms;
+  transition-timing-function: ease;
+}
+
+.input-values:hover {
+  background-color: hsla(0, 0.00%, 20.00%, 1.00);
+  color: hsla(0, 0.00%, 100.00%, 1.00);
+}
+
+.upload-photo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20vw;
+  cursor: pointer;
+}
+.right {
+  display: flex;
+  height: 12vh;
+  padding-right: 10vw;
+}
+.url {
+  display: flex;
+  justify-content: space-between;
+  width: 20vw;
+  height: 10vh;
+}
+.enter-url {
+  display: block;
+  width: 20vw;
+}
+
+.lower {
+  display: flex;
+  flex-grow: 5;
+  min-height: 40vh;
+  justify-content: space-between;
+}
+
+.previews {
+  display: flex;
+  flex-wrap: wrap;
+  flex-grow: 8;
+  justify-content: center;
+}
+
+.preview {
+  flex-shrink: 1;
+  display: block;
+  height: 15vh;
+  border-radius: 30px;
+  border: .5vh solid transparent;
+  margin: 1vw 1% 1vw 1%;
+  background-clip: border-box;
+  object-fit: fill;
+  cursor: pointer;
+  transition-property: all;
+  transition-duration: 300ms;
+  transition-timing-function: ease;
+}
+
+.preview:hover {
+  border: .5vh solid red;
+}
+
+.analyze {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 10vw;
+}
+
+.analyze-button {
+  display: block;
+  width: 5vw;
+  height: 5vw;
+  background-color: transparent;
+  background-image: url("https://uploads-ssl.webflow.com/611968865cc3c3243e59ac45/612712ec7bdc1350d425d696_analyze%20button.svg");
+  background-position: 0px 0px;
+  background-size: contain;
+  transition-property: all;
+  transition-duration: 300ms;
+  transition-timing-function: ease;
+}
+
+.analyze-button:hover {
+  transform: translate(10%, 0px);
+}

@@ -179,11 +179,11 @@ def load_response(key, filename, filedata, counts, concentrations):
         cell_results = count_cells(img)
         concentration = calculate_concentration(img, cell_results[0], 271.8, 0.1) / 1000000
     except:
-        final_data[key][filename]["count"] = "{} (error)".format(filename)
+        final_data[key][filename]["count"] = "N/A".format(filename)
         final_data[key][filename]["image"] = image_array_to_base64(img)
         return 0
     final_data[key][filename] = {}
-    final_data[key][filename]["count"] = "{} ({} cells)".format(filename, len(cell_results[0]))
+    final_data[key][filename]["count"] = "{} Cells".format(len(cell_results[0]))
     final_data[key][filename]["image"] = image_array_to_base64(img)
     final_data[key][filename]["outlines"] = annotate_image(img, cell_results)
     final_data[key][filename]["circles"] = annotate_image(img, cell_results, True)
@@ -215,7 +215,7 @@ def histogram(data, metric):
 
 @app.route('/')
 def index_get():
-    return render_template("index1.html")
+    return render_template("index2.html")
 
 
 @app.route('/', methods=["POST"])

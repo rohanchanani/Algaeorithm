@@ -26,7 +26,8 @@ const addURL = () => {
         previewImage.onclick = previewImage.onclick = "deleteImage('url', '" + givenURL + "')";
         document.getElementById("urlInput").value = "";
         document.getElementById("previews").appendChild(previewImage);
-        document.getElementById("analyze-button").setAttribute("class", "analyze");
+        document.getElementById("lower").setAttribute("class", "lower");
+        document.getElementById("upper").removeAttribute("style");
     }
 }
 
@@ -56,8 +57,8 @@ const addFileToList = () => {
             previewFigcaption.setAttribute("onclick", "deleteFile()");
             previewFigure.appendChild(previewFigcaption);*/
             document.getElementById("previews").appendChild(previewImage);
-            document.getElementById("analyze-button").setAttribute("class", "analyze");
-            console.log("made it here");
+            document.getElementById("lower").setAttribute("class", "lower");
+            document.getElementById("upper").removeAttribute("style");
         }
     }
 }
@@ -72,7 +73,8 @@ const deleteImage = (imageType, imageName) => {
         urlToSubmit.splice(urlToSubmit.indexOf(imageName), 1);
     }
     if (!document.getElementById("previews").children.length) {
-        document.getElementById("analyze-button").setAttribute("class", "hidden");
+        document.getElementById("lower").setAttribute("class", "hidden");
+        document.getElementById("upper").setAttribute("style", "margin-bottom: 20vh;");
     }
 }
 
@@ -109,6 +111,8 @@ const setImage = (index, method) => {
 }
 
 const displayImage = (imagesIndex, method)  => {
+    document.getElementById("see-images").setAttribute("class", "hidden");
+    document.getElementById("see-overview").setAttribute("class", "see-overview");
     imageIndex = imagesIndex;
     changePalette("resultsInfo");
     //let downloadLink = document.getElementById("resultsDownload");
@@ -196,6 +200,8 @@ const setGraph = (selectedGraph, metric) => {
 
 const setOverview = () => {
     changePalette("overview");
+    document.getElementById("see-overview").setAttribute("class", "hidden");
+    document.getElementById("see-images").setAttribute("class", "see-images");
     if (parsedResponse["stats"] == "No data available") {
         document.getElementById("counts-stats").innerHTML = "No data available";
         document.getElementById("concentrations-stats").innerHTML = "No data available";
