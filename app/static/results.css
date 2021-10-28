@@ -142,9 +142,9 @@ background-color: hsla(0, 0.00%, 100.00%, 0.50);
 .we-found {
   width: 100%;
   font-family: DM Sans;
-  font-size: min(6vh, 60px);
+  font-size: min(5vh, 3vw);
 }
 
 .results-unit {
-  font-size: min(1vh, 1vw);
+  font-size: min(3vh, 2vw);
 }

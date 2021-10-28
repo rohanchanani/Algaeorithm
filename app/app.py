@@ -342,10 +342,8 @@ def index_post():
     for image_url in json.loads(request.form.get("url")):
         load_response("url_counts", image_url, image_url, counts, concentrations, csv_rows)
     csv_string = ""
-    print(list(csv_rows.values()))
     for row in list(csv_rows.values()):
         csv_string += ",".join(row) + "\r\n"
-    print(csv_string)
     final_data["csv string"] = csv_string
     final_data["csv"] = csv_rows
     if len(concentrations) > 1 and len(counts) > 1:

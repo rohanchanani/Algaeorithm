@@ -433,7 +433,6 @@ const loadInformation = () => {
         return;
     }
     fileInput.append("url", JSON.stringify(urlToSubmit));
-    console.log(fileInput);
     request.open("POST", "/");
     request.send(fileInput);
     document.getElementById("analyze-link").setAttribute("class", "hidden");
