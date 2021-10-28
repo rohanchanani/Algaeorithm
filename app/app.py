@@ -1,5 +1,3 @@
-# A very simple Flask Hello World app for you to get started with...
-
 from io import BytesIO
 from skimage import io
 import matplotlib.pyplot as plt
@@ -13,7 +11,7 @@ import numpy as np
 from skimage.color import rgb2gray
 from skimage.feature import peak_local_max
 from skimage.segmentation import watershed
-from scipy import ndimage, stats
+from scipy import ndimage, stats, optimize
 import cv2
 import json
 import base64
@@ -161,38 +159,58 @@ def calculate_concentration(image, contours, cell_volume, mm_depth):
     expected_area = (((cell_volume * 3 / 4 / math.pi) ** (1/3)) ** 2) * math.pi
     return len(contours) / ((expected_area / avg_area * image.shape[0] * image.shape[1]) * 10 ** -8 * mm_depth / 10)
 
-def load_response(key, filename, filedata, counts, concentrations):
+def load_response(key, filename, filedata, counts, concentrations, csv_rows):
     final_data[key][filename] = {}
+    row_to_append = [filename, "N/A", "N/A"]
+    depth = request.form.get("depth") if request.form.get("depth") else request.form.get("depth-"+filename)
+    row_to_append.insert(1, depth)
+    if request.form.get("time-unit"):
+        if request.form.get("time-"+filename):
+            row_to_append.insert(1, request.form.get("time-"+filename))
+        else:
+            row_to_append.insert(1, "N/A")
     if filename==filedata:
         try:
             img = np.asarray(io.imread(filename))
         except:
-            final_data[key][filename]["count"] = "{} (error)".format(filename)
+            final_data[key][filename]["count"] = "N/A"
+            final_data[key][filename]["concentration"] = "N/A"
+            csv_rows.append(row_to_append)
             return 0
     else:  
         try:
             img = np.asarray(Image.open(BytesIO(filedata.read())))
         except:
-            final_data[key][filename]["count"] = "{} (error)".format(filename)
+            final_data[key][filename]["count"] = "N/A"
+            final_data[key][filename]["concentration"] = "N/A"
+            csv_rows.append(row_to_append)
             return 0
     try:
         cell_results = count_cells(img)
-        concentration = calculate_concentration(img, cell_results[0], 271.8, 0.1) / 1000000
+        concentration = calculate_concentration(img, cell_results[0], 271.8, float(depth))
     except:
-        final_data[key][filename]["count"] = "N/A".format(filename)
-        final_data[key][filename]["image"] = image_array_to_base64(img)
-        return 0
+        final_data[key][filename]["count"] = "N/A"
+        final_data[key][filename]["concentration"] = "N/A"
+        csv_rows.append(row_to_append)
+    if request.form.get("time-unit"):
+        if request.form.get("time-"+filename):
+            time_x.append(float(request.form.get("time-"+filename)))
+            counts_y.append(len(cell_results[0]))
+            concentrations_y.append(concentration)
+    row_to_append[-2] = str(len(cell_results[0]))
+    row_to_append[-1] = str(round(concentration, 2))
+    csv_rows[filename] = row_to_append           
     final_data[key][filename] = {}
-    final_data[key][filename]["count"] = "{} Cells".format(len(cell_results[0]))
+    final_data[key][filename]["count"] = "{}".format(len(cell_results[0]))
+    final_data[key][filename]["concentration"] = "{:.2e}".format(concentration)
     final_data[key][filename]["image"] = image_array_to_base64(img)
     final_data[key][filename]["outlines"] = annotate_image(img, cell_results)
     final_data[key][filename]["circles"] = annotate_image(img, cell_results, True)
-    final_data[key][filename]["concentration"] = concentration
     counts.append(len(cell_results[0]))
     concentrations.append(concentration)
     
 def boxplot(data, metric):
-    units = {"Count": "# of Cells", "Concentration": "Cells / mL (millions)"}
+    units = {"Count": "# of Cells", "Concentration": "Cells / mL"}
     fig = plt.figure()
     ax = plt.axes()
     ax.boxplot(data, vert=False, patch_artist=True)
@@ -200,10 +218,10 @@ def boxplot(data, metric):
     ax.yaxis.set_ticklabels([])
     ax.set_title("Cell " + metric + " Box Plot")
     fig.add_axes(ax)
-    return(image_array_to_base64(get_img_from_fig(fig, False)))
+    return image_array_to_base64(get_img_from_fig(fig, False))
 
 def histogram(data, metric):
-    units = {"Count": "# of Cells", "Concentration": "Cells / mL (millions)"}
+    units = {"Count": "# of Cells", "Concentration": "Cells / mL"}
     fig = plt.figure()
     ax = plt.axes()
     ax.hist(data)
@@ -211,26 +229,128 @@ def histogram(data, metric):
     ax.set_ylabel("Frequency")
     ax.set_title("Cell " + metric + " Histogram")
     fig.add_axes(ax)
-    return(image_array_to_base64(get_img_from_fig(fig, False)))   
+    return image_array_to_base64(get_img_from_fig(fig, False))
 
+def const_string(number):
+    if number < 0:
+        return " - " + str(abs(number))
+    elif number > 0:
+        return " + " + str(number)
+    else:
+        return ""
+
+annotate_x = 0.5
+
+def linear_regression(x, y, metric, unit):
+    units = {"Count": "# of Cells", "Concentration": "Cells / mL"}
+    z = np.polyfit(x, y, 1)
+    poly1d_fn = np.poly1d(z)
+    fig = plt.figure()
+    ax = plt.axes()
+    ax.plot(x, y, "o", x, poly1d_fn(x), "-")
+    ax.set_xlabel("Time (" + unit + ")")
+    ax.set_ylabel(units[metric])
+    ax.set_title("Cell " + metric + " Linear Growth")
+    rounded_b = round(z[1], 2)
+    linear_formula = f"y = {round(z[0], 2)}x{const_string(rounded_b)}"
+    ax.annotate(linear_formula, (np.median(x), z[0] * np.median(x) + z[1]), (max(x) - annotate_x * np.ptp(x), max(y) - 0.1 * np.ptp(y)), arrowprops=dict(facecolor='black', shrink=0.05), fontsize="large")
+    fig.add_axes(ax)
+    return image_array_to_base64(get_img_from_fig(fig, False))
+
+def exponential_f(x, a, b, c):
+    return a * np.exp(b*x) + c
+
+def exponential_regression(x, y, metric, unit):
+    units = {"Count": "# of Cells", "Concentration": "Cells / mL"}
+    try:
+        (a_, b_, c_), _ = optimize.curve_fit(exponential_f, x, y)
+    except:
+        return False
+    y_fit = exponential_f(x, a_, b_, c_)
+    fig = plt.figure()
+    ax = plt.axes()
+    ax.plot(x, y, 'o')
+    ax.plot(x, y_fit, '-')
+    rounded_c = round(c_, 2)
+    string = "$%.2f{e}^{%.2fx}$%s" % (round(a_, 2), round(b_, 2), const_string(rounded_c))
+    ax.annotate(string, (np.median(x), exponential_f(np.median(x), a_, b_, c_)), (max(x) - annotate_x * np.ptp(x), max(y) - .1 * np.ptp(y)), arrowprops=dict(facecolor='black', shrink=0.05), fontsize="large")
+    ax.set_xlabel("Time (" + unit + ")")
+    ax.set_ylabel(units[metric])
+    ax.set_title("Cell " + metric + " Exponential Growth")
+    fig.add_axes(ax)
+    return image_array_to_base64(get_img_from_fig(fig, False))
+
+def logistic_f(x, a, b, c, d):
+    return a / (1. + np.exp(-c * (x - d))) + b
+
+def logistic_regression(x, y, metric, unit):
+    units = {"Count": "# of Cells", "Concentration": "Cells / mL"}
+    try:
+        (a_, b_, c_, d_), _ = optimize.curve_fit(logistic_f, x, y, method="trf")
+    except:
+        return False
+    y_fit = logistic_f(x, a_, b_, c_, d_)
+    fig = plt.figure()
+    ax = plt.axes()
+    ax.plot(x, y, 'o')
+    ax.plot(x, y_fit, '-')
+    string = "y = $\dfrac{%.2f}{1 + {e}^{%.2f * (x%s)}}$%s" % (round(a_, 2), -1 * round(c_, 2), const_string(-1 * round(d_, 2)), const_string(round(b_, 2)))
+    ax.annotate(string, (np.median(x), logistic_f(np.median(x), a_, b_, c_, d_)), (max(x) - annotate_x * np.ptp(x), max(y) - .1 * np.ptp(y)), arrowprops=dict(facecolor='black', shrink=0.05), fontsize="large")
+    ax.set_xlabel("Time (" + unit + ")")
+    ax.set_ylabel(units[metric])
+    ax.set_title("Cell " + metric + " Logistic Growth")
+    fig.add_axes(ax)
+    return image_array_to_base64(get_img_from_fig(fig, False))
+
+def load_graphs(counts, concentrations):
+    final_data["graphs"] = {"Count": {}, "Concentration": {}}
+    metric_to_list = {"Count": [counts], "Concentration": [concentrations]}
+    for metric in ["Count", "Concentration"]:
+        final_data["graphs"][metric]["Box Plot"] = boxplot(metric_to_list[metric], metric)
+        final_data["graphs"][metric]["Histogram"] = histogram(metric_to_list[metric], metric)
+        if request.form.get("time-unit") and len(time_x) > 2:
+            metric_to_y = {"Count": np.array(counts_y), "Concentration": np.array(concentrations_y)}
+            final_data["graphs"][metric]["Linear Growth"] = linear_regression(np.array(time_x), metric_to_y[metric], metric, request.form.get("time-unit"))
+            is_exponential = exponential_regression(np.array(time_x), metric_to_y[metric], metric, request.form.get("time-unit"))
+            is_logistic = logistic_regression(np.array(time_x), metric_to_y[metric], metric, request.form.get("time-unit"))
+            if is_exponential:
+                final_data["graphs"][metric]["Exponential Growth"] = is_exponential
+            if is_logistic:
+                final_data["graphs"][metric]["Logistic Growth"] = is_logistic
 @app.route('/')
 def index_get():
-    return render_template("index2.html")
+    return render_template("index.html")
 
 
 @app.route('/', methods=["POST"])
-def index_post():        
+def index_post():       
     global final_data
     final_data = {"file_counts": {}, "url_counts": {}}
     counts = []
     concentrations = []
+    csv_rows = {"header": ["Name", "Depth (mm)", "Count (cells)", "Concentration (cells / mL)"]}
+    if request.form.get("time-unit"):
+        csv_rows["header"].insert(1, "Time ("+request.form.get("time-unit")+")")
+        global counts_y
+        global time_x
+        time_x = []
+        counts_y = []
+        global concentrations_y
+        concentrations_y = []
     for filename, file in request.files.items():
-        load_response("file_counts", filename, file, counts, concentrations)
+        load_response("file_counts", filename, file, counts, concentrations, csv_rows)
     for image_url in json.loads(request.form.get("url")):
-        load_response("url_counts", image_url, image_url, counts, concentrations)
+        load_response("url_counts", image_url, image_url, counts, concentrations, csv_rows)
+    csv_string = ""
+    print(list(csv_rows.values()))
+    for row in list(csv_rows.values()):
+        csv_string += ",".join(row) + "\r\n"
+    print(csv_string)
+    final_data["csv string"] = csv_string
+    final_data["csv"] = csv_rows
     if len(concentrations) > 1 and len(counts) > 1:
-        final_data["stats"] = {"Count": {"Mean": str(round(np.mean(counts), 2)), "Range": str(round(np.ptp(counts), 2)), "Standard Deviation": str(round(np.std(counts), 2)), "iqr": list(map(lambda x: str(round(x, 2)), np.percentile(counts, [25, 50, 75])))}, "Concentration": {"Mean": str(round(np.mean(concentrations), 2)), "Range": str(round(np.ptp(concentrations), 2)), "Standard Deviation": str(round(np.std(concentrations), 2)), "iqr": list(map(lambda x: str(round(x, 2)), np.percentile(concentrations, [25, 50, 75])))}}
-        final_data["graphs"] = {"Count": {"Box Plot": boxplot(counts, "Count"), "Histogram": histogram(counts, "Count")}, "Concentration": {"Box Plot": boxplot(concentrations, "Concentration"), "Histogram": histogram(concentrations, "Concentration")}}
+        final_data["stats"] = {"Count": {"Mean": str(round(np.mean(counts), 2)), "Range": str(round(np.ptp(counts), 2)), "Standard Deviation": str(round(np.std(counts), 2)), "iqr": list(map(lambda x: str(round(x, 2)), np.percentile(counts, [25, 50, 75])))}, "Concentration": {"Mean": "{:.2e}".format(np.mean(concentrations)), "Range": "{:.2e}".format(np.ptp(concentrations)), "Standard Deviation": "{:.2e}".format(np.std(concentrations)), "iqr": list(map(lambda x: "{:.2e}".format(x), np.percentile(concentrations, [25, 50, 75])))}}
+        load_graphs(counts, concentrations)
     else:
         final_data["stats"] = "No data available"
     return final_data
