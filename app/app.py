@@ -24,7 +24,7 @@ def threshold_image(image, clear_background=True, block_size=35):
     if not image.any():
         return
     if len(image.shape) > 2:
-        image = image[:, :, 2]
+        image = image[:, :, int(request.form.get("image-color"))]
     if not clear_background:
         thresh = threshold_local(image, block_size)
     else:
@@ -32,7 +32,7 @@ def threshold_image(image, clear_background=True, block_size=35):
     if np.mean(image) > threshold_otsu(image):
         binary = image < thresh
     else:
-        binary = image < thresh
+        binary = image > thresh
     return binary.astype(np.uint8) * 255
 
 
@@ -348,6 +348,10 @@ def index_post():
     final_data["csv"] = csv_rows
     if len(concentrations) > 1 and len(counts) > 1:
         final_data["stats"] = {"Count": {"Mean": str(round(np.mean(counts), 2)), "Range": str(round(np.ptp(counts), 2)), "Standard Deviation": str(round(np.std(counts), 2)), "iqr": list(map(lambda x: str(round(x, 2)), np.percentile(counts, [25, 50, 75])))}, "Concentration": {"Mean": "{:.2e}".format(np.mean(concentrations)), "Range": "{:.2e}".format(np.ptp(concentrations)), "Standard Deviation": "{:.2e}".format(np.std(concentrations)), "iqr": list(map(lambda x: "{:.2e}".format(x), np.percentile(concentrations, [25, 50, 75])))}}
+        sorted_nested = sorted(zip(time_x, counts_y, concentrations_y), key=lambda x: x[0])
+        time_x = list(map(lambda x: x[0], sorted_nested))
+        counts_y = list(map(lambda x: x[1], sorted_nested))
+        concentrations_y = list(map(lambda x: x[2], sorted_nested))
         load_graphs(counts, concentrations)
     else:
         final_data["stats"] = "No data available"

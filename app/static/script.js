@@ -6,6 +6,11 @@ let fileInput = new FormData();
 let urlToSubmit = [];
 let parsedResponse = {};
 
+const makeDecision = (imageColor) => {
+    fileInput.append("image-color", imageColor);
+    changePalette("inputInfo");
+}
+
 const changeAdvanced = () => {
     if (document.getElementById("advanced-options").innerHTML == "Advanced") {
         document.getElementById("advanced-input").setAttribute("class", "advanced-input");
@@ -170,7 +175,7 @@ const changePalette = (elementId) => {
     if (document.getElementById(elementId).getAttribute("class") == "palette") {
         return;
     }
-    let allPalettes = ["inputInfo", "overview", "resultsInfo", "table"];
+    let allPalettes = ["inputInfo", "overview", "resultsInfo", "table", "decision"];
     allPalettes.splice(allPalettes.indexOf(elementId), 1)
     for (let deleteId of allPalettes) {
         document.getElementById(deleteId).setAttribute("class", "hidden");

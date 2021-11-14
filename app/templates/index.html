@@ -7,6 +7,7 @@
         <title>Algaeorithm</title>
         <link href="https://fonts.googleapis.com/css2?family=DM+Sans&display=swap" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="static/decision.css">
         <link rel="stylesheet" href="static/input.css">
         <link rel="stylesheet" href="static/results.css">
         <link rel="stylesheet" href="static/loading.css">
@@ -18,7 +19,14 @@
         <div class="header">
             <a href="/" id="algaeorithm"><h1 class="logo">Algaeorithm</h1></a>
         </div>
-        <div id="inputInfo" class="palette">
+        <div id="decision" class="palette">
+            <h1 class="algae-question">What do your images look like? (Click One)</h1>
+            <div class="options">
+                <img class="decision-image" src="static/darkmicroscope.jpg" onclick="makeDecision(0)">
+                <img class="decision-image" src="static/lightmicroscope.jpg" onclick="makeDecision(2)">
+            </div>
+        </div>
+        <div id="inputInfo" class="hidden">
             <div id="top-instruction" class="top-instruction">
                 <div id="initially-visible" class="initially-visible">
                     <h1 class="instruction">To begin, choose an option below</h1>
