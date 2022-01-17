@@ -319,7 +319,7 @@ def load_graphs(counts, concentrations):
                 final_data["graphs"][metric]["Logistic Growth"] = is_logistic
 @app.route('/')
 def index_get():
-    return render_template("index.html")
+    return render_template("new_index.html")
 
 
 @app.route('/', methods=["POST"])

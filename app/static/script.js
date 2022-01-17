@@ -1,127 +1,122 @@
 let imageIndex = 0;
 let imagesList = [];
 let fileList = document.getElementById("fileList");
-let urlList = document.getElementById("urlList");
 let fileInput = new FormData();
-let urlToSubmit = [];
 let parsedResponse = {};
+let urlToSubmit = [];
 
-const changeAdvanced = () => {
-    if (document.getElementById("advanced-options").innerHTML == "Advanced") {
-        document.getElementById("advanced-input").setAttribute("class", "advanced-input");
-        document.getElementById("advanced-options").innerHTML = "Hide Advanced";
-    } else {
-        document.getElementById("advanced-input").setAttribute("class", "hidden");
-        document.getElementById("advanced-options").innerHTML = "Advanced";
+const checkBox = (boxId) => {
+    document.getElementById(boxId).checked = !document.getElementById(boxId).checked;
+}
+
+const checkRadio = (radioId) => {
+    document.getElementById(radioId).checked = true;
+    if (radioId == "consistent" || radioId == "varied") {
+        changeDepth();
     }
 }
 
-const updateTimePreviews = () => {
-    for (let previewElement of document.getElementById("previews").children) {
-        if (previewElement.getAttribute("id") == "sample-preview") {
-            previewElement.children[0].setAttribute("class", "specific-inputs");
-            continue;
-        }
-        previewElement.children[1].setAttribute("class", "specific-inputs");
-        previewElement.children[1].children[0].setAttribute("class", "preview-time");
-        let currentVal = previewElement.children[1].children[0].children[0].value;
-        previewElement.children[1].children[0].innerHTML = previewElement.children[1].children[0].children[0].outerHTML + document.getElementById("time-unit").value;
-        previewElement.children[1].children[0].children[0].value = currentVal;
+const changeImageType = (imageType) => {
+    checkRadio(imageType);
+    document.getElementById("img-"+imageType).setAttribute("class", "selected-photo-type photo-type");
+    if (imageType == "clear") {
+        document.getElementById("img-"+"hemocytometer").setAttribute("class", "photo-type");
+    } else {
+        document.getElementById("img-"+"clear").setAttribute("class", "photo-type");
     }
+}
+
+const getRadioValue = (radioName) => {
+    for (let radioButton of document.getElementsByName(radioName)) {
+        if (radioButton.checked) {
+            return radioButton.value;
+        }
+    }
+}
+
+const isConsistentDepth = () => {
+    let depthSensitive = getRadioValue("depth-sensitive") == "consistent";
+    return depthSensitive;
+}
+
+const changeInterval = () => {
+    if (document.getElementById("interval").checked) {
+        document.getElementById("interval-label").setAttribute("class", "settings-label");
+    } else {
+        document.getElementById("interval-label").setAttribute("class", "hidden");
+    }
+}
+
+const changeIntervalValue = () => {
+    labelElement = document.getElementById("interval-label")
+    labelElement.innerHTML = labelElement.children[0].outerHTML + " " + document.getElementById("time-units").value;
 }
 
 const changeTime = () => {
     if (document.getElementById("time-sensitive").checked) {
-        document.getElementById("time-unit-box").setAttribute("class", "inner-advanced-box");
-        updateTimePreviews();
-    } else {
-        document.getElementById("time-unit-box").setAttribute("class", "invisible margin-five");
+        document.getElementById("time-setting").setAttribute("class", "setting");
         for (let previewElement of document.getElementById("previews").children) {
-            if (previewElement.getAttribute("id") == "sample-preview") {
-                if (document.getElementById("depth-sensitive").checked) {
-                    previewElement.children[0].setAttribute("class", "hidden");
-                }
+            if (previewElement.tagName.toLowerCase() != "div") {
                 continue;
             }
-            if (document.getElementById("depth-sensitive").checked) {
-                previewElement.children[1].setAttribute("class", "hidden");
+            previewElement.children[1].setAttribute("class", "specific-inputs");
+            previewElement.children[1].children[0].setAttribute("class", "preview-time")
+        }
+    } else {
+        document.getElementById("time-setting").setAttribute("class", "hidden");
+        for (let previewElement of document.getElementById("previews").children) {
+            if (previewElement.tagName.toLowerCase() != "div") {
+                continue;
             }
             previewElement.children[1].children[0].setAttribute("class", "hidden");
-            let currentVal = previewElement.children[1].children[0].children[0].value;
-            previewElement.children[1].children[0].innerHTML = previewElement.children[1].children[0].children[0].outerHTML;
-            previewElement.children[1].children[0].children[0].value = currentVal;
+            if (isConsistentDepth()) {
+                previewElement.children[1].setAttribute("class", "hidden");
+            }
         }
     }
 }
 
 const changeDepth = () => {
-    if (document.getElementById("depth-sensitive").checked) {
+    if (!isConsistentDepth()) {
+        document.getElementById("default-label").setAttribute("class", "settings-label");
+        document.getElementById("all-depth-label").setAttribute("class", "hidden");
         for (let previewElement of document.getElementById("previews").children) {
-            if (previewElement.getAttribute("id") == "sample-preview") {
-                if (!document.getElementById("time-sensitive").checked) {
-                    previewElement.children[0].setAttribute("class", "hidden");
-                }
-                continue;
-            }
-            if (!document.getElementById("time-sensitive").checked) {
-                previewElement.children[1].setAttribute("class", "hidden");
-            }
-            previewElement.children[1].children[1].setAttribute("class", "hidden");
-        }
-    } else {
-        for (let previewElement of document.getElementById("previews").children) {
-            if (previewElement.getAttribute("id") == "sample-preview") {
-                previewElement.children[0].setAttribute("class", "specific-inputs");
+            if (previewElement.tagName.toLowerCase() != "div") {
                 continue;
             }
             previewElement.children[1].setAttribute("class", "specific-inputs");
-            previewElement.children[1].children[1].setAttribute("class", "preview-depth");
+            previewElement.children[1].children[1].setAttribute("class", "preview-input")
+        }
+    } else {
+        document.getElementById("default-label").setAttribute("class", "hidden");
+        document.getElementById("all-depth-label").setAttribute("class", "settings-label");
+        for (let previewElement of document.getElementById("previews").children) {
+            if (previewElement.tagName.toLowerCase() != "div") {
+                continue;
+            }
+            previewElement.children[1].children[1].setAttribute("class", "hidden");
+            if (!document.getElementById("time-sensitive").checked) {
+                previewElement.children[1].setAttribute("class", "hidden");
+            }
         }
     }
 }
 
-const createPreview = (imageName, imageType, imageSrc) => {
+const createPreview = (imageName, imageSrc, imageType="file") => {
     let previewDiv = document.createElement("div");
     previewDiv.setAttribute("class", "preview");
     previewDiv.setAttribute("id", "img-"+imageName);
-    let imageContainer = document.createElement("div");
-    imageContainer.setAttribute("class", "preview-image-container");
     let previewImage = document.createElement("img");
     previewImage.setAttribute("class", "preview-image");
     previewImage.src = imageSrc;
     previewImage.title = imageName;
-    previewImage.setAttribute("onclick", "deleteImage('" + imageType + "', '" + imageName + "')");
-    imageContainer.appendChild(previewImage);
-    previewDiv.appendChild(imageContainer);
-    previewDiv.innerHTML += document.getElementById("sample-preview").innerHTML;
-    if (document.getElementById("time-sensitive").checked) {
-        previewDiv.children[1].children[0].setAttribute("class", "preview-time");
-        previewDiv.children[1].children[0].innerHTML += " " + document.getElementById("time-unit").value;
-    }
-    if (!document.getElementById("depth-sensitive").checked) {
-        previewDiv.children[1].children[1].setAttribute("class", "preview-depth");
-    }
+    previewDiv.appendChild(previewImage);
+    previewDiv.innerHTML += document.getElementById("sample-preview").children[1].outerHTML;
+    let deleteButton = document.createElement("button");
+    deleteButton.setAttribute("class", "delete-photo");
+    deleteButton.setAttribute("onclick", "deleteImage('" + imageName + "', '" + imageType + "')");
+    previewDiv.appendChild(deleteButton);
     document.getElementById("previews").appendChild(previewDiv);
-    document.getElementById("lower").setAttribute("class", "lower");
-    document.getElementById("upper").style.setProperty("margin-bottom", "0vh");
-}
-
-
-const addURL = () => {
-    if (!document.getElementById("urlInput").value){
-        alert("Please enter a URL");
-    }
-    else {
-        let givenURL = document.getElementById("urlInput").value;
-        if (urlToSubmit.includes(givenURL)) {
-            alert("Please enter a unique URL");
-            document.getElementById("urlInput").value = "";
-            return;
-        }
-        urlToSubmit.push(givenURL);
-        createPreview(givenURL, 'url', givenURL);
-        document.getElementById("urlInput").value = "";
-    }
 }
 
 const addFileToList = () => {
@@ -136,12 +131,12 @@ const addFileToList = () => {
                 continue;
             }
             fileInput.append(newFile.name, newFile);
-            createPreview(newFile.name, "file", URL.createObjectURL(newFile));
+            createPreview(newFile.name, URL.createObjectURL(newFile));
         }
     }
 }
 
-const deleteImage = (imageType, imageName) => {
+const deleteImage = (imageName, imageType="file") => {
     let imageElement = document.getElementById("img-"+imageName);
     imageElement.parentElement.removeChild(imageElement);
     if (imageType=="file") {
@@ -149,10 +144,6 @@ const deleteImage = (imageType, imageName) => {
     }
     else {
         urlToSubmit.splice(urlToSubmit.indexOf(imageName), 1);
-    }
-    if (document.getElementById("previews").children.length == 1) {
-        document.getElementById("lower").setAttribute("class", "hidden");
-        document.getElementById("upper").style.setProperty("margin-bottom", "20vh");
     }
 }
 
@@ -354,7 +345,7 @@ const checkIfNumber = (value) => {
         return false;
     }
     try {
-        parseInt(value);
+        parseFloat(value);
     } catch (error) {
         return false;
     }
@@ -372,26 +363,26 @@ const checkSensitives = () => {
                 continue;
             }
             if (checkIfNumber(previewElement.children[1].children[0].children[0].value)) {
-                fileInput.append("time-"+previewElement.children[0].children[0].title, previewElement.children[1].children[0].children[0].value);
+                fileInput.append("time-"+previewElement.children[0].title, previewElement.children[1].children[0].children[0].value);
             }
         }
         fileInput.append("time-unit", document.getElementById("time-unit").value);
     }
-    if (!document.getElementById("depth-sensitive").checked) {
+    if (!isConsistentDepth()) {
         for (let previewElement of document.getElementById("previews").children) {
             if (previewElement.id == "sample-preview") {
                 continue;
             }
             if (checkIfNumber(previewElement.children[1].children[1].children[0].value)) {
-                fileInput.append("depth-"+previewElement.children[0].children[0].title, previewElement.children[1].children[1].children[0].value);
+                fileInput.append("depth-"+previewElement.children[0].title, previewElement.children[1].children[1].children[0].value);
             }
             else {
-                if (!checkIfNumber(document.getElementById("all-depth").value)) {
+                if (!checkIfNumber(document.getElementById("default-depth").value)) {
                     alert("Please enter a depth for each picture or a valid default depth");
                     return false;
                 } 
                 else {
-                    fileInput.append("depth-"+previewElement.children[0].children[0].title, document.getElementById("all-depth").value);
+                    fileInput.append("depth-"+previewElement.children[0].title, document.getElementById("default-depth").value);
                 }
             }
         }
@@ -415,7 +406,7 @@ const cancelRequest = () => {
 
 const loadInformation = () => {
     if (!document.getElementById("previews").children.length) {
-        alert("Please add a file or url");
+        alert("No images added");
         return;
     }
     let request = new XMLHttpRequest();
@@ -439,15 +430,11 @@ const loadInformation = () => {
     document.getElementById("loader-wrapper").removeAttribute("class");
 }
 document.addEventListener("keydown", function(event) {
-    if (event.key === "Enter") {
-        if (event.ctrlKey) {
-            loadInformation();
-        } else {
-            addURL();
-        }
+    if (event.key === "Enter" && event.ctrlKey) {
+        loadInformation();
     }
 });
 document.getElementById("staging").addEventListener("change", addFileToList);
 document.getElementById("time-sensitive").addEventListener("change", changeTime);
-document.getElementById("depth-sensitive").addEventListener("change", changeDepth);
-document.getElementById("time-unit").addEventListener("keyup", updateTimePreviews);
+document.getElementById("interval").addEventListener("change", changeInterval);
+document.getElementById("time-units").addEventListener("keyup", changeIntervalValue);

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algaeorithm</title>
+    <script
+        src="https://code.jquery.com/jquery-3.6.0.js"
+        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+        crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/index.css">
+</head>
+<body>
+    <body class="body">
+        <div class="header">
+            <h1 class="logo"><a href="/" id="algaeorithm">Algaeorithm</a></h1>
+        </div>
+        <div id="inputInfo" class="palette">
+            <div class="lab">
+                <div class="photos">
+                    <div id="previews" class="previews">
+                        <label for="staging" class="add-photo"></label>
+                        <input id="staging" type="file" class="hidden" accept="image/png, image/jpeg" multiple>
+                        <div id="sample-preview" class="hidden">
+                            <div class="hidden"></div>
+                            <div class="hidden">
+                                <label class="hidden">Time: <input type="text" autocomplete="off" class="preview-input"></label>
+                                <label class="hidden">Depth: <input type="text" autocomplete="off" class="preview-input"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings">
+                    <div class="setting">
+                        <h2 class="setting-name">image type</h2>
+                        <div class="types">
+                            <label for="clear" class="photo-type-label" onclick="changeImageType('clear')">
+                                <input type="radio" name="image-type" value="clear" id="clear" class="hidden">
+                                <img id="img-clear" src="chlamy_square.jpg" class="photo-type"/>
+                            </label>
+                            <label for="hemocytometer" class="photo-type-label" onclick="changeImageType('hemocytometer')">
+                                <input type="radio" name="image-type" value="hemocytometer" id="hemocytometer" class="hidden">
+                                <img src="tricornutum_square.jpg" class="photo-type" id="img-hemocytometer"/>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="setting">
+                        <h2 class="setting-name">depth</h2>
+                        <div class="row">
+                            <label for="consistent" class="settings-label" onclick="checkRadio('consistent')">
+                                <input type="radio" name="depth-sensitive" value="consistent" id="consistent" checked>
+                                <div class="radio"></div>
+                                consistent:
+                            </label>
+                            <label for="all-depth" class="settings-label" id="all-depth-label"><input type="number" id="all-depth" class="settings-input" autocomplete="off" value="0.1">mm</label>
+                        </div>
+                        <div class="row">
+                            <label for="varied" class="settings-label" onclick="checkRadio('varied')">
+                                <input type="radio" name="depth-sensitive" value="varied" id="varied">
+                                <div class="radio"></div>
+                                varied
+                            </label>                            
+                            <label for="default-depth" class="hidden" id="default-label">Default: 
+                            <input type="number" id="default-depth" class="settings-input" autocomplete="off" value="0.1">
+                            mm</label>
+                        </div>
+                    </div>
+                    <div class="setting">
+                        <div class="row title">
+                            <h2 class="setting-name">time</h2>
+                            <label for="time-sensitive" class="switch" onclick="checkBox('time-sensitive')">
+                                <input type="checkbox" id="time-sensitive" class="switch_input">
+                                <div class="switch_fill"></div>
+                            </label>
+                        </div>
+                        <div class="hidden" id="time-setting">
+                            <div class="row">
+                                <label for="time-units" class="settings-label">units:</label>
+                                <input type="text" id="time-units" class="settings-input" autocomplete="off" value="days">
+                            </div>
+                            <div class="row">
+                                <label for="time-interval" class="settings-label">interval:</label>
+                                <label for="time-interval" class="hidden" id="interval-label"><input type="number" id="time-interval" class="settings-input" autocomplete="off" value="1"> days</label>
+                                <label for="interval" class="switch">
+                                    <input type="checkbox" id="interval" class="switch_input">
+                                    <div class="switch_fill"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="analyze-button" class="analyze-button" onclick="loadInformation()">analyze images</div>
+    </body>
+    <script src="static/script.js"></script>
+</body>
+</html>
