@@ -175,7 +175,7 @@ def load_response(key, filename, filedata, counts, concentrations, csv_rows):
         except:
             final_data[key][filename]["count"] = "N/A"
             final_data[key][filename]["concentration"] = "N/A"
-            csv_rows.append(row_to_append)
+            csv_rows[filename] = row_to_append 
             return 0
     else:  
         try:
@@ -183,7 +183,7 @@ def load_response(key, filename, filedata, counts, concentrations, csv_rows):
         except:
             final_data[key][filename]["count"] = "N/A"
             final_data[key][filename]["concentration"] = "N/A"
-            csv_rows.append(row_to_append)
+            csv_rows[filename] = row_to_append 
             return 0
     try:
         cell_results = count_cells(img)
@@ -191,7 +191,8 @@ def load_response(key, filename, filedata, counts, concentrations, csv_rows):
     except:
         final_data[key][filename]["count"] = "N/A"
         final_data[key][filename]["concentration"] = "N/A"
-        csv_rows.append(row_to_append)
+        csv_rows[filename] = row_to_append
+        return 0 
     if request.form.get("time-unit"):
         if request.form.get("time-"+filename):
             time_x.append(float(request.form.get("time-"+filename)))
