@@ -58,9 +58,9 @@ a, button {
   margin-top: 2.5vh;
   margin-bottom: 2.5vh;
   border-radius: 2.5vh;
-  box-shadow: .1vw .1vw 1.5vw .1vw hsla(190.83333333333331, 66.67%, 21.18%, 0.48);
+  box-shadow: 0.1vw 0.1vw 1.5vw 0.1vw hsl(191deg 67% 21% / 48%);
   background-color: hsla(0, 0.00%, 100.00%, 0.80);
-  }
+}
 
 .tab, .selected-tab {
   position: relative;

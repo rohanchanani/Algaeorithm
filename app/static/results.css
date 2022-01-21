@@ -51,24 +51,24 @@ justify-content: center;
 
 .next:hover {
 background-color: hsla(0, 0.00%, 20.00%, 1.00);
-background-image: url("next button(white).svg");
+background-image: url("next_button(white).svg");
 color: hsla(0, 0.00%, 20.00%, 1.00);
 }
 
 .last:hover {
 background-color: hsla(0, 0.00%, 20.00%, 1.00);
-background-image: url("last button(white).svg");
+background-image: url("last_button(white).svg");
 color: hsla(0, 0.00%, 100.00%, 1.00);
 }
 
 .last {
 margin-right: 2vw;
-background-image: url("last button.svg");
+background-image: url("last_button.svg");
 }
 
 .next {
 margin-left: 2vw;
-background-image: url("next button.svg");
+background-image: url("next_button.svg");
 }
 
 .image-container {

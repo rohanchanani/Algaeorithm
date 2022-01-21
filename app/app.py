@@ -24,7 +24,7 @@ def threshold_image(image, clear_background=True, block_size=35):
     if not image.any():
         return
     if len(image.shape) > 2:
-        image = image[:, :, 2]
+        image = image[:, :, int(request.form.get("color"))]
     if not clear_background:
         thresh = threshold_local(image, block_size)
     else:
@@ -32,7 +32,7 @@ def threshold_image(image, clear_background=True, block_size=35):
     if np.mean(image) > threshold_otsu(image):
         binary = image < thresh
     else:
-        binary = image < thresh
+        binary = image > thresh
     return binary.astype(np.uint8) * 255
 
 
@@ -175,7 +175,7 @@ def load_response(key, filename, filedata, counts, concentrations, csv_rows):
         except:
             final_data[key][filename]["count"] = "N/A"
             final_data[key][filename]["concentration"] = "N/A"
-            csv_rows.append(row_to_append)
+            csv_rows[filename] = row_to_append 
             return 0
     else:  
         try:
@@ -183,7 +183,7 @@ def load_response(key, filename, filedata, counts, concentrations, csv_rows):
         except:
             final_data[key][filename]["count"] = "N/A"
             final_data[key][filename]["concentration"] = "N/A"
-            csv_rows.append(row_to_append)
+            csv_rows[filename] = row_to_append 
             return 0
     try:
         cell_results = count_cells(img)
@@ -191,7 +191,8 @@ def load_response(key, filename, filedata, counts, concentrations, csv_rows):
     except:
         final_data[key][filename]["count"] = "N/A"
         final_data[key][filename]["concentration"] = "N/A"
-        csv_rows.append(row_to_append)
+        csv_rows[filename] = row_to_append
+        return 0 
     if request.form.get("time-unit"):
         if request.form.get("time-"+filename):
             time_x.append(float(request.form.get("time-"+filename)))

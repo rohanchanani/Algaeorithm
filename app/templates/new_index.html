@@ -1,22 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Algaeorithm</title>
-    <script
-        src="https://code.jquery.com/jquery-3.6.0.js"
-        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
-        crossorigin="anonymous"></script>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="static/index.css">
-</head>
-<body>
-    <body class="body">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Algaeorithm</title>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="static/index.css">
+        <link rel="stylesheet" href="static/results.css">
+        <link rel="stylesheet" href="static/loading.css">
+        <link rel="stylesheet" href="static/stats.css">
+        <link rel="stylesheet" href="static/table.css">
+        <link rel="stylesheet" href="static/misc.css">
+    </head>
+    <body id="body" class="body vsc-initialized">    
         <div class="header">
-            <h1 class="logo"><a href="/" id="algaeorithm">Algaeorithm</a></h1>
+            <a href="/" id="algaeorithm"><h1 class="logo">Algaeorithm</h1></a>
         </div>
         <div id="inputInfo" class="palette">
             <div class="lab">
@@ -38,12 +38,12 @@
                         <h2 class="setting-name">image type</h2>
                         <div class="types">
                             <label for="clear" class="photo-type-label" onclick="changeImageType('clear')">
-                                <input type="radio" name="image-type" value="clear" id="clear" class="hidden">
-                                <img id="img-clear" src="chlamy_square.jpg" class="photo-type"/>
+                                <input type="radio" name="image-type" value="clear" id="clear" class="hidden" checked>
+                                <img id="img-clear" src="static/chlamy_square.jpg" class="photo-type selected-photo-type"/>
                             </label>
                             <label for="hemocytometer" class="photo-type-label" onclick="changeImageType('hemocytometer')">
                                 <input type="radio" name="image-type" value="hemocytometer" id="hemocytometer" class="hidden">
-                                <img src="tricornutum_square.jpg" class="photo-type" id="img-hemocytometer"/>
+                                <img src="static/tricornutum_square.jpg" class="photo-type" id="img-hemocytometer"/>
                             </label>
                         </div>
                     </div>
@@ -78,8 +78,8 @@
                         </div>
                         <div class="hidden" id="time-setting">
                             <div class="row">
-                                <label for="time-units" class="settings-label">units:</label>
-                                <input type="text" id="time-units" class="settings-input" autocomplete="off" value="days">
+                                <label for="time-unit" class="settings-label">units:</label>
+                                <input type="text" id="time-unit" class="settings-input" autocomplete="off" value="days">
                             </div>
                             <div class="row">
                                 <label for="time-interval" class="settings-label">interval:</label>
@@ -94,8 +94,65 @@
                 </div>
             </div>
         </div>
-        <div id="analyze-button" class="analyze-button" onclick="loadInformation()">analyze images</div>
+        <div id="analyze-button" class="hidden" onclick="loadInformation()">analyze images</div>
+        <div id="loader-wrapper" class="hidden">
+            <div class="loading-box">
+                <div class="loading-text">Processing images...</div>
+                <div id="loader"></div>
+                <a onclick="cancelRequest()" class="cancel-button">Cancel</a>
+            </div>
+        </div>
+        <div id="table" class="hidden">
+               <table class="csv-table" id="csv-table"></table>
+               <a download="algaeorithm_data.csv" id="download-csv" class="download-csv">download table</a>
+        </div>
+        <div id="overview" class="hidden">
+            <div class="top">
+                <div class="counts">
+                    <div class="stats-title">Cell Count (# of cells)</div>
+                    <div id="counts-stats" class="stats-info"></div>    
+                </div>          
+                <div class="concentrations">
+                    <div class="stats-title">Cell Concentration (cells / mL)</div>
+                    <div id="concentrations-stats" class="stats-info"></div>    
+                </div>
+            </div>
+            <div class="bottom">
+                <div id="counts-graphs" class="graphs">
+                    <img id="counts-graph" class="graph">
+                    <div id="counts-change" class="change-graph"></div>
+                </div>
+                <div id="concentrations-graphs" class="graphs">
+                    <img id="concentrations-graph" class="graph">
+                    <div id="concentrations-change" class="change-graph"></div>
+                  </div>
+            </div>
+        </div>
+        <div id="resultsInfo" class="hidden">
+            <div class="lab">
+                <div id="visual" class="visual">
+                    <div class="img-nav" id="img-nav">
+                        <a id="lastImage" class="invisible"></a>
+                        <div id="image-number" class="image-number"></div>
+                        <a id="nextImage" class="invisible"></a>
+                    </div> 
+                    <div class="image-container">
+                        <img id="resultsImage" class="algae" onclick="clickDownload()">
+                        <a id="download-link" class="hidden"></a>
+                    </div>
+                    <div id="show-pictures" class="show-pictures"></div>
+                </div>
+                <div class="info">
+                    <h2 id="resultsCount" class="we-found"></h2>
+                    <h2 id="resultsConcentration" class="we-found"></h2>
+                </div>
+            </div>
+        </div>
+        <div id="tab-nav" class="hidden">
+            <a onclick="setTable()" id="show-table" class="tab">data table</a><a onclick="setOverview()" id="show-overview" class="tab">statistical overview</a><a onclick="displayImage(0, 'Outlines')" id="show-images" class="tab">image analysis</a>
+        </div>
+        <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+        <script src="static/script.js"></script>
     </body>
-    <script src="static/script.js"></script>
-</body>
 </html>

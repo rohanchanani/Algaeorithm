@@ -45,6 +45,7 @@ const changeInterval = () => {
     } else {
         document.getElementById("interval-label").setAttribute("class", "hidden");
     }
+    changeTime();
 }
 
 const changeIntervalValue = () => {
@@ -53,8 +54,8 @@ const changeIntervalValue = () => {
 }
 
 const changeTime = () => {
-    if (document.getElementById("time-sensitive").checked) {
-        document.getElementById("time-setting").setAttribute("class", "setting");
+    document.getElementById("time-setting").setAttribute("class", "setting");
+    if (document.getElementById("time-sensitive").checked && !document.getElementById("interval").checked) {
         for (let previewElement of document.getElementById("previews").children) {
             if (previewElement.tagName.toLowerCase() != "div") {
                 continue;
@@ -63,7 +64,9 @@ const changeTime = () => {
             previewElement.children[1].children[0].setAttribute("class", "preview-time")
         }
     } else {
-        document.getElementById("time-setting").setAttribute("class", "hidden");
+        if (!document.getElementById("time-sensitive").checked) {
+            document.getElementById("time-setting").setAttribute("class", "hidden");
+        }
         for (let previewElement of document.getElementById("previews").children) {
             if (previewElement.tagName.toLowerCase() != "div") {
                 continue;
@@ -134,6 +137,7 @@ const addFileToList = () => {
             createPreview(newFile.name, URL.createObjectURL(newFile));
         }
     }
+    document.getElementById("analyze-button").setAttribute("class", "analyze-button");
 }
 
 const deleteImage = (imageName, imageType="file") => {
@@ -144,6 +148,9 @@ const deleteImage = (imageName, imageType="file") => {
     }
     else {
         urlToSubmit.splice(urlToSubmit.indexOf(imageName), 1);
+    }
+    if (document.getElementById("previews").children.length == 3) {
+        document.getElementById("analyze-button").setAttribute("class", "hidden");
     }
 }
 
@@ -353,24 +360,45 @@ const checkIfNumber = (value) => {
 }
 
 const checkSensitives = () => {
+    imageColor = 2;
+    if (document.getElementById("hemocytometer").checked) {
+        imageColor = 0;
+    }
+    fileInput.append("color", imageColor);
     if (document.getElementById("time-sensitive").checked) {
         if (!document.getElementById("time-unit").value) {
             alert("Please enter a valid unit for time sensitive data");
             return false;   
         }
-        for (let previewElement of document.getElementById("previews").children) {
-            if (previewElement.id == "sample-preview") {
-                continue;
+        if (document.getElementById("interval").checked) {
+            if (!checkIfNumber(document.getElementById("time-interval").value)) {
+                alert("Please enter a valid interval");
+                return false;
+            } else {
+                let intervalDay = 0;
+                for (let previewElement of document.getElementById("previews").children) {
+                    if (previewElement.id == "sample-preview" || previewElement.tagName.toLowerCase() != "div") {
+                        continue;
+                    }
+                    fileInput.append("time-"+previewElement.children[0].title, intervalDay.toString());
+                    intervalDay += parseFloat(document.getElementById("time-interval").value);
+                }
             }
-            if (checkIfNumber(previewElement.children[1].children[0].children[0].value)) {
-                fileInput.append("time-"+previewElement.children[0].title, previewElement.children[1].children[0].children[0].value);
+        } else {
+            for (let previewElement of document.getElementById("previews").children) {
+                if (previewElement.id == "sample-preview" || previewElement.tagName.toLowerCase() != "div") {
+                    continue;
+                }
+                if (checkIfNumber(previewElement.children[1].children[0].children[0].value)) {
+                    fileInput.append("time-"+previewElement.children[0].title, previewElement.children[1].children[0].children[0].value);
+                }
             }
         }
         fileInput.append("time-unit", document.getElementById("time-unit").value);
     }
     if (!isConsistentDepth()) {
         for (let previewElement of document.getElementById("previews").children) {
-            if (previewElement.id == "sample-preview") {
+            if (previewElement.id == "sample-preview" || previewElement.tagName.toLowerCase() != "div") {
                 continue;
             }
             if (checkIfNumber(previewElement.children[1].children[1].children[0].value)) {
@@ -400,7 +428,7 @@ const checkSensitives = () => {
 }
 
 const cancelRequest = () => {
-    document.getElementById("analyze-link").setAttribute("class", "analyze-button");
+    document.getElementById("analyze-button").setAttribute("class", "analyze-button");
     document.getElementById("loader-wrapper").setAttribute("class", "hidden");
 }
 
@@ -426,7 +454,7 @@ const loadInformation = () => {
     fileInput.append("url", JSON.stringify(urlToSubmit));
     request.open("POST", "/");
     request.send(fileInput);
-    document.getElementById("analyze-link").setAttribute("class", "hidden");
+    document.getElementById("analyze-button").setAttribute("class", "hidden");
     document.getElementById("loader-wrapper").removeAttribute("class");
 }
 document.addEventListener("keydown", function(event) {
@@ -437,4 +465,4 @@ document.addEventListener("keydown", function(event) {
 document.getElementById("staging").addEventListener("change", addFileToList);
 document.getElementById("time-sensitive").addEventListener("change", changeTime);
 document.getElementById("interval").addEventListener("change", changeInterval);
-document.getElementById("time-units").addEventListener("keyup", changeIntervalValue);
+document.getElementById("time-unit").addEventListener("keyup", changeIntervalValue);
