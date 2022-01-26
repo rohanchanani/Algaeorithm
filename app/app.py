@@ -16,96 +16,112 @@ import cv2
 import json
 import base64
 import math
+import os
+import tensorflow as tf
+from object_detection.utils import label_map_util
+from object_detection.utils import visualization_utils as viz_utils
+from object_detection.builders import model_builder
+from object_detection.utils import config_util
+import random
 
 app = Flask(__name__)
 
+# Load pipeline config and build a detection model
+cell_configs = config_util.get_configs_from_pipeline_file(os.path.join("app", "static", "cells", "pipeline.config"))
+cell_detection_model = model_builder.build(model_config=cell_configs['model'], is_training=False)
 
-def threshold_image(image, clear_background=True, block_size=35):
-    if not image.any():
-        return
-    if len(image.shape) > 2:
-        image = image[:, :, int(request.form.get("color"))]
-    if not clear_background:
-        thresh = threshold_local(image, block_size)
-    else:
-        thresh = threshold_otsu(image)
-    if np.mean(image) > threshold_otsu(image):
-        binary = image < thresh
-    else:
-        binary = image > thresh
-    return binary.astype(np.uint8) * 255
+# Restore checkpoint
+cell_ckpt = tf.compat.v2.train.Checkpoint(model=cell_detection_model)
+cell_ckpt.restore(os.path.join("app", "static", "cells", 'ckpt-3')).expect_partial()
 
+category_index = label_map_util.create_category_index_from_labelmap(os.path.join("app", "static", "cells", "label_map.pbtxt"))
 
-def image_to_contours_list(image, clear_background=True, block_size=35, min_ratio=0.1, max_ratio=3, min_distance=10):
-    gray_shape = rgb2gray(image).shape
-    # Threshold the image, and fill holes in contours
-    thresh = ndimage.morphology.binary_fill_holes(
-        threshold_image(image, clear_background, block_size))
-    # Find peaks and convert to labels
-    D = ndimage.distance_transform_edt(thresh)
-    localMax = peak_local_max(D, indices=False, min_distance=min_distance, labels=thresh)
-    markers = ndimage.label(localMax, structure=np.ones((3, 3)))[0]
-    labels = watershed(-D, markers, mask=thresh)
-    all_contours = []
-    # Find contours in labels, and add largest contour to list of contours
-    for label in np.unique(labels):
-        if label == 0:
-            continue
-        mask = np.zeros(gray_shape, dtype="uint8")
-        mask[labels == label] = 255
-        cnts, hierarchy = cv2.findContours(
-            mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        c = max(cnts, key=cv2.contourArea)
-        all_contours.append(c)
-    if not len(all_contours):
-        return []
-    # Remove outliers in contour area
-    contour_areas = list(map(cv2.contourArea, all_contours))
-    if len(all_contours) > 1:
-        all_contours = [contour for idx, contour in enumerate(all_contours) if abs(stats.zscore(contour_areas)[idx]) < 5]
-    contour_areas = list(map(cv2.contourArea, all_contours))
-    return [contour for contour in all_contours if min_ratio * np.mean(contour_areas) < cv2.contourArea(contour)]
+def cells_fn(image):
+    image, shapes = cell_detection_model.preprocess(image)
+    prediction_dict = cell_detection_model.predict(image, shapes)
+    detections = cell_detection_model.postprocess(prediction_dict, shapes)
+    return detections
 
+# Load pipeline config and build a detection model
+crop_configs = config_util.get_configs_from_pipeline_file(os.path.join("app", "static", "crop", "pipeline.config"))
+crop_detection_model = model_builder.build(model_config=crop_configs['model'], is_training=False)
 
-def remove_cells_within_cells(contours):
-    i1 = 0
-    coords = []
-    # Remove outlines that are swallowed up by other outlines
-    while i1 < len(contours):
-        c1 = contours[i1]
-        ((x1, y1), r1) = cv2.minEnclosingCircle(c1)
-        coords.append(cv2.minEnclosingCircle(c1))
-        i2 = 0
-        while i2 < len(contours):
-            c2 = contours[i2]
-            if not np.array_equal(c1, c2):
-                ((x2, y2), r2) = cv2.minEnclosingCircle(c2)
-                if ((((x2 - x1)**2) + ((y2-y1)**2))**0.5) < r1:
-                    contours.pop(i2)
-                else:
-                    i2 += 1
-            else:
-                i2 += 1
-        i1 += 1
-    return contours, coords
+# Restore checkpoint
+crop_ckpt = tf.compat.v2.train.Checkpoint(model=crop_detection_model)
+crop_ckpt.restore(os.path.join("app", "static", "crop", 'ckpt-3')).expect_partial()
 
+def crop_fn(image):
+    image, shapes = crop_detection_model.preprocess(image)
+    prediction_dict = crop_detection_model.predict(image, shapes)
+    detections = crop_detection_model.postprocess(prediction_dict, shapes)
+    return detections
 
-def count_cells(image, clear_background=True, block_size=35, min_ratio=0.1, max_ratio=3, min_distance=10, return_outlines=False):
-    if not image.any():
-        return -1
-    # Calculate area once to get an idea of the area of each cell in pixels, then calculate again with new minimum distance which takes into account the new areas
-    all_contours = image_to_contours_list(image, clear_background=clear_background, block_size=block_size,
-                                          min_ratio=min_ratio, max_ratio=max_ratio, min_distance=min_distance)
-    if not all_contours:
-        return [], []
-    contour_areas = list(map(cv2.contourArea, all_contours))
-    new_min_distance = round(math.sqrt(np.mean(contour_areas)) / 3)
-    all_contours = image_to_contours_list(image, clear_background=clear_background, block_size=block_size,
-                                          min_ratio=min_ratio, max_ratio=max_ratio, min_distance=new_min_distance)
-    all_contours = sorted(all_contours, key=cv2.contourArea, reverse=True)
-    all_contours, coords = remove_cells_within_cells(all_contours)
-    return all_contours, coords
+def auto_crop(image_data, threshold = 0.8):
+    image_np = np.array(image_data)
 
+    input_tensor = tf.convert_to_tensor(np.expand_dims(image_np, 0), dtype=tf.float32)
+    detections = crop_fn(input_tensor)
+
+    num_detections = int(detections.pop('num_detections'))
+    detections = {key: value[0, :num_detections].numpy() for key, value in detections.items()}
+    detections['num_detections'] = num_detections
+
+    if detections["detection_scores"][0] < threshold:
+        return image_np
+    
+    height = image_np.shape[0]
+    width = image_np.shape[1]
+    crop_box = detections["detection_boxes"][0]
+
+    return cv2.cvtColor(image_np[int(crop_box[0]*height):int(crop_box[2]*height), int(crop_box[1]*width):int(crop_box[3]*width), :], cv2.COLOR_BGR2RGB)
+
+def chlamy_concentration(cell_boxes, total_area, cell_volume=271.8, depth=0.1):
+    avg_radius = np.mean(list(map(lambda box: (abs((box[3] - box[1]) / 2) + abs((box[2] - box[0]) / 2)) / 2, cell_boxes)))
+    expected_radius = (cell_volume * 3 / 4 / math.pi) ** (1/3)
+    return len(cell_boxes) / (((expected_radius ** 2) / (avg_radius ** 2) * total_area) * 10 ** -9 * depth)
+
+def count_concentration_detections(image, num_patches=5, patch_size=500, threshold=0.1, cell_volume=271.8, depth=0.1):
+    cropped_image = auto_crop(image)
+    img_height = cropped_image.shape[0]
+    img_width = cropped_image.shape[1]
+    total_area = 0
+    all_cells = []
+    patch_results = {"patch": [], "detections": []}
+    for i in range(num_patches):
+        width_offset = random.randint(0, max(img_width - patch_size, 0))
+        height_offset = random.randint(0, max(img_width - patch_size, 0))
+        img_patch = cropped_image[height_offset:min(img_height, height_offset + patch_size), width_offset:min(img_width, width_offset + patch_size), :]
+        input_tensor = tf.convert_to_tensor(np.expand_dims(img_patch, 0), dtype=tf.float32)
+        detections = cells_fn(input_tensor)
+
+        num_detections = int(detections.pop('num_detections'))
+        detections = {key: value[0, :num_detections].numpy() for key, value in detections.items()}
+        detections['num_detections'] = num_detections
+
+        # detection_classes should be ints.
+        detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
+        patch_width = img_patch.shape[1]
+        patch_height = img_patch.shape[0]
+        for i in range(detections["num_detections"]):
+            if detections["detection_scores"][i] <= threshold or i==detections["num_detections"] - 1:
+                all_boxes = detections["detection_boxes"][:i]
+                scaled_boxes = list(map(lambda x: [x[0] * patch_height, x[1] * patch_width, x[2]*patch_height, x[3] * patch_width], all_boxes))
+                break
+        all_cells.extend(scaled_boxes)
+        total_area += img_patch.shape[0] * img_patch.shape[1]
+        patch_results["patch"].append(img_patch)
+        patch_results["detections"].append(all_boxes)
+    estimated_cell_count = len(all_cells) * img_height * img_width / total_area
+    concentration = chlamy_concentration(all_cells, total_area, cell_volume, depth)
+    return estimated_cell_count, concentration, patch_results
+
+def annotate_patches(patch_results):
+    annotated_patches = []
+    for patch, detections in zip(patch_results["patch"], patch_results["detections"]):
+        patch_with_detections = patch.copy()
+        viz_utils.draw_bounding_boxes_on_image_array(patch_with_detections, detections)
+        annotated_patches.append(image_array_to_base64(np.array(cv2.cvtColor(patch_with_detections, cv2.COLOR_BGR2RGB))))
+    return annotated_patches
 
 def get_img_from_fig(fig, tight=True, dpi=180):
     buf = BytesIO()
@@ -120,29 +136,6 @@ def get_img_from_fig(fig, tight=True, dpi=180):
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     return img
 
-
-def annotate_image(image, outlines, circles=False):
-    if not outlines:
-        return image_array_to_base64(image)
-    if circles:
-        fig = plt.figure()
-        ax = plt.axes(frameon=False)
-        ax.axis("off")
-        ax.get_xaxis().tick_bottom()
-        ax.axes.get_yaxis().set_visible(False)
-        ax.axes.get_xaxis().set_visible(False)
-        ax.set_aspect('equal')
-        ax.imshow(image)
-        for ((x1, y1), r1) in outlines[1]:
-            circ = Circle((x1, y1), r1)
-            ax.add_patch(circ)
-        fig.add_axes(ax)
-        return image_array_to_base64(get_img_from_fig(fig))
-    else:
-        cv2.drawContours(image, outlines[0], -1, (255, 0, 0), 2)
-        return image_array_to_base64(image)
-
-
 def image_array_to_base64(arr):
     img = Image.fromarray(arr.astype('uint8'))
     file_object = BytesIO()
@@ -152,14 +145,14 @@ def image_array_to_base64(arr):
         img.save(file_object, format="PNG")
     img_str = base64.b64encode(file_object.getvalue())
     file_object.close()
-    return img_str.decode("utf-8")
+    return "data:image/jpeg;base64,"+img_str.decode("utf-8")
 
 def calculate_concentration(image, contours, cell_volume, mm_depth):
     avg_area = np.mean(list(map(cv2.contourArea, contours)))
     expected_area = (((cell_volume * 3 / 4 / math.pi) ** (1/3)) ** 2) * math.pi
     return len(contours) / ((expected_area / avg_area * image.shape[0] * image.shape[1]) * 10 ** -8 * mm_depth / 10)
 
-def load_response(key, filename, filedata, counts, concentrations, csv_rows):
+def load_response(key, filename, filedata, counts, concentrations, csv_rows, num_patches):
     final_data[key][filename] = {}
     row_to_append = [filename, "N/A", "N/A"]
     depth = request.form.get("depth") if request.form.get("depth") else request.form.get("depth-"+filename)
@@ -181,33 +174,33 @@ def load_response(key, filename, filedata, counts, concentrations, csv_rows):
         try:
             img = np.asarray(Image.open(BytesIO(filedata.read())))
         except:
+            print("error reading file")
             final_data[key][filename]["count"] = "N/A"
             final_data[key][filename]["concentration"] = "N/A"
             csv_rows[filename] = row_to_append 
             return 0
     try:
-        cell_results = count_cells(img)
-        concentration = calculate_concentration(img, cell_results[0], 271.8, float(depth))
+        estimated_count, concentration, patch_results = count_concentration_detections(img, num_patches)
     except:
         final_data[key][filename]["count"] = "N/A"
         final_data[key][filename]["concentration"] = "N/A"
+        final_data[key][filename]["image"] = image_array_to_base64(img)
         csv_rows[filename] = row_to_append
         return 0 
     if request.form.get("time-unit"):
         if request.form.get("time-"+filename):
             time_x.append(float(request.form.get("time-"+filename)))
-            counts_y.append(len(cell_results[0]))
+            counts_y.append(estimated_count)
             concentrations_y.append(concentration)
-    row_to_append[-2] = str(len(cell_results[0]))
+    row_to_append[-2] = str(round(estimated_count, 2))
     row_to_append[-1] = str(round(concentration, 2))
     csv_rows[filename] = row_to_append           
     final_data[key][filename] = {}
-    final_data[key][filename]["count"] = "{}".format(len(cell_results[0]))
+    final_data[key][filename]["count"] = "{:.2e}".format(estimated_count)
     final_data[key][filename]["concentration"] = "{:.2e}".format(concentration)
     final_data[key][filename]["image"] = image_array_to_base64(img)
-    final_data[key][filename]["outlines"] = annotate_image(img, cell_results)
-    final_data[key][filename]["circles"] = annotate_image(img, cell_results, True)
-    counts.append(len(cell_results[0]))
+    final_data[key][filename]["patches"] = annotate_patches(patch_results)
+    counts.append(estimated_count)
     concentrations.append(concentration)
     
 def boxplot(data, metric):
@@ -338,10 +331,11 @@ def index_post():
         counts_y = []
         global concentrations_y
         concentrations_y = []
+    num_patches = int(request.form.get("num_patches"))
     for filename, file in request.files.items():
-        load_response("file_counts", filename, file, counts, concentrations, csv_rows)
+        load_response("file_counts", filename, file, counts, concentrations, csv_rows, num_patches)
     for image_url in json.loads(request.form.get("url")):
-        load_response("url_counts", image_url, image_url, counts, concentrations, csv_rows)
+        load_response("url_counts", image_url, image_url, counts, concentrations, csv_rows, num_patches)
     csv_string = ""
     for row in list(csv_rows.values()):
         csv_string += ",".join(row) + "\r\n"

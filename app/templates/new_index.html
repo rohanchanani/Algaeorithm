@@ -7,12 +7,12 @@
         <title>Algaeorithm</title>
         <link href="https://fonts.googleapis.com/css2?family=DM+Sans&display=swap" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="static/index.css">
-        <link rel="stylesheet" href="static/results.css">
-        <link rel="stylesheet" href="static/loading.css">
-        <link rel="stylesheet" href="static/stats.css">
-        <link rel="stylesheet" href="static/table.css">
-        <link rel="stylesheet" href="static/misc.css">
+        <link rel="stylesheet" href="static/css/index.css">
+        <link rel="stylesheet" href="static/css/results.css">
+        <link rel="stylesheet" href="static/css/loading.css">
+        <link rel="stylesheet" href="static/css/stats.css">
+        <link rel="stylesheet" href="static/css/table.css">
+        <link rel="stylesheet" href="static/css/misc.css">
     </head>
     <body id="body" class="body vsc-initialized">    
         <div class="header">
@@ -39,11 +39,11 @@
                         <div class="types">
                             <label for="clear" class="photo-type-label" onclick="changeImageType('clear')">
                                 <input type="radio" name="image-type" value="clear" id="clear" class="hidden" checked>
-                                <img id="img-clear" src="static/chlamy_square.jpg" class="photo-type selected-photo-type"/>
+                                <img id="img-clear" src="static/logos/chlamy_square.jpg" class="photo-type selected-photo-type"/>
                             </label>
                             <label for="hemocytometer" class="photo-type-label" onclick="changeImageType('hemocytometer')">
                                 <input type="radio" name="image-type" value="hemocytometer" id="hemocytometer" class="hidden">
-                                <img src="static/tricornutum_square.jpg" class="photo-type" id="img-hemocytometer"/>
+                                <img src="static/logos/tricornutum_square.jpg" class="photo-type" id="img-hemocytometer"/>
                             </label>
                         </div>
                     </div>
@@ -89,6 +89,13 @@
                                     <div class="switch_fill"></div>
                                 </label>
                             </div>
+                        </div>
+                    </div>
+                    <div class="setting">
+                        <div class="row">
+                            <label for="num-patches">Faster</label>
+                            <input type="range" min="1" max="10" value="5" id="num-patches">
+                            <label for="num-patches">More Accurate</label>
                         </div>
                     </div>
                 </div>
@@ -137,8 +144,10 @@
                         <a id="nextImage" class="invisible"></a>
                     </div> 
                     <div class="image-container">
+                        <a id="lastPatch" class="hidden" onclick="changePatch(-1)"></a>
                         <img id="resultsImage" class="algae" onclick="clickDownload()">
                         <a id="download-link" class="hidden"></a>
+                        <a id="nextPatch" class="hidden" onclick="changePatch(1)"></a>
                     </div>
                     <div id="show-pictures" class="show-pictures"></div>
                 </div>
@@ -149,7 +158,7 @@
             </div>
         </div>
         <div id="tab-nav" class="hidden">
-            <a onclick="setTable()" id="show-table" class="tab">data table</a><a onclick="setOverview()" id="show-overview" class="tab">statistical overview</a><a onclick="displayImage(0, 'Outlines')" id="show-images" class="tab">image analysis</a>
+            <a onclick="setTable()" id="show-table" class="tab">data table</a><a onclick="setOverview()" id="show-overview" class="tab">statistical overview</a><a onclick="displayImage(0, 'Patches')" id="show-images" class="tab">image analysis</a>
         </div>
         <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>

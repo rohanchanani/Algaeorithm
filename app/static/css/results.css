@@ -1,0 +1,191 @@
+.lab {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.visual {
+height: 100%;
+display: flex;
+width: 75%;
+flex-flow: column nowrap;
+align-items: center;
+justify-content: center;
+}
+
+.img-nav {
+  margin-top: 2.5vh;
+  --img-nav-height: 5vh;
+  --inner-nav-height: calc(var(--img-nav-height) * 4/5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: var(--img-nav-height);
+}
+
+.image-number {
+  display: flex;
+  align-items: center;
+  height: var(--inner-nav-height);
+  font-family: DM Sans;
+  font-size: min(max(2vw, calc(var(--img-nav-height)*3/5)), 36px);
+  text-align: center;
+}
+
+.last, .next {
+  display: flex;
+  align-items: center;
+  height: var(--inner-nav-height);
+  width: var(--inner-nav-height);
+  border-style: solid;
+  border-width: 1px;
+  border-color: transparent;
+  border-radius: 3vw;
+  background-color: transparent;
+  background-size: var(--inner-nav-height) var(--inner-nav-height);
+  transition-property: all;
+  transition-duration: 300ms;
+  transition-timing-function: ease;
+}
+
+.next:hover {
+background-color: hsla(0, 0.00%, 20.00%, 1.00);
+background-image: url("/static/logos/next_button(white).svg");
+color: hsla(0, 0.00%, 20.00%, 1.00);
+}
+
+.last:hover {
+background-color: hsla(0, 0.00%, 20.00%, 1.00);
+background-image: url("/static/logos/last_button(white).svg");
+color: hsla(0, 0.00%, 100.00%, 1.00);
+}
+
+.last {
+margin-right: 2vw;
+background-image: url("/static/logos/last_button.svg");
+}
+
+.next {
+margin-left: 2vw;
+background-image: url("/static/logos/next_button.svg");
+}
+
+.image-container {
+  --results-image-height: 65vh;
+  --results-image-width: 67.5vw;
+  height: var(--results-image-height);
+  width: var(--results-image-width);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.algae, .patch {
+  height: 60vh;
+  object-fit: contain;
+  flex-shrink: 1;
+  margin: 2.5vh 2.5vw;
+  cursor: pointer;
+}
+
+.algae {
+  width: 62.5vw;
+}
+
+.patch {
+  width: 52.5vw;
+}
+
+.patch-nav {
+  margin: 1.25vw;
+  width: 2.5vw;
+  height: 2.5vw;
+  border-style: solid;
+  border-width: 1px;
+  border-color: transparent;
+  border-radius: 1vw;
+  background-size: 2.5vw 2.5vw;
+  transition-property: all;
+  transition-duration: 300ms;
+  transition-timing-function: ease;
+}
+
+#lastPatch {
+  background-image: url("/static/logos/last_button.svg");
+}
+
+#nextPatch {
+  background-image: url("/static/logos/next_button.svg");
+}
+
+#lastPatch:hover {
+  background-color: hsla(0, 0.00%, 20.00%, 1.00);
+  background-image: url("/static/logos/last_button(white).svg");
+  color: hsla(0, 0.00%, 100.00%, 1.00);
+}
+
+#nextPatch:hover {
+  background-color: hsla(0, 0.00%, 20.00%, 1.00);
+  background-image: url("/static/logos/next_button(white).svg");
+  color: hsla(0, 0.00%, 100.00%, 1.00);
+}
+
+.show-pictures {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 5vh;
+  margin-bottom: 2.5vh;
+  width: 67.5vw;
+  flex-shrink: 1;
+}
+
+.image-type, .graph-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-family: DM Sans;
+  color: #333;
+  white-space: nowrap;
+  transition-property: all;
+  transition-duration: 300ms;
+  transition-timing-function: ease;
+}
+
+.image-type {
+  height: 5vh;
+  margin-left: 3vw;
+  margin-right: 3vw;
+  border-radius: 20vh;
+  border: .3vh solid transparent;
+  font-size: min(2vw, 30px);
+  padding: 9px 15px;
+}
+
+.image-type:hover, .graph-button:hover {
+  color: hsla(0, 0.00%, 100.00%, 1.00);
+  background-color: hsla(0, 0.00%, 20.00%, 1.00);
+}
+
+.info {
+display: flex;
+flex-direction: column;
+width: 25%;
+height: 80vh;
+align-items: center;
+justify-content: space-evenly;
+border-radius: 2vw;
+background-color: hsla(0, 0.00%, 100.00%, 0.50);
+}
+
+.we-found {
+  width: 100%;
+  font-family: DM Sans;
+  font-size: min(5vh, 3vw);
+}
+
+.results-unit {
+  font-size: min(3vh, 2vw);
+}

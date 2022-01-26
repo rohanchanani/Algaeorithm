@@ -1,0 +1,87 @@
+#loader-wrapper {
+  position: absolute;
+  top: 10vh;
+  left: 5vw;
+  width: 90vw;
+  height: 80vh;
+  background-color: hsla(0, 0.00%, 100.00%, 0.50);
+  border-radius: 2vw;
+  z-index: 1000;
+}
+
+.loading-box {
+  display: flex;
+  flex-flow: column nowrap;
+  position: absolute;
+  justify-content: space-between;
+  align-items: center;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  height: 20vw;
+  width: 18vw;
+}
+
+.loading-text, .cancel-button {
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  font-family: DM Sans;
+  text-align: center;
+  font-size: min(3vh, 3vw);
+  width: 100%;
+}
+
+.cancel-button {
+  border: .1vh solid;
+  border-radius: 2.5vh;
+  background-color: rgb(200, 200, 200);
+  height: 10%;
+  width: 50%;
+  font-size: min(2.5vh, 2.5vw);
+  color: black;
+  transition-property: all;
+  transition-duration: 100ms;
+  transition-timing-function: ease;
+}
+
+.cancel-button:hover {
+  background-color: rgb(150, 150, 150);
+}
+
+#loader {
+  width: 6vw;
+  height: 6vw;
+  margin: 0 25%;
+  border-radius: 50%;
+  border: .75vh solid #000000;
+  border-top-color: transparent;
+  -webkit-animation: spin 1.5s linear infinite;
+  animation: spin 1.5s linear infinite;
+}
+
+
+@-webkit-keyframes spin {
+  0%   {
+      -webkit-transform: rotate(0deg);  /* Chrome, Opera 15+, Safari 3.1+ */
+      -ms-transform: rotate(0deg);  /* IE 9 */
+      transform: rotate(0deg);  /* Firefox 16+, IE 10+, Opera */
+  }
+  100% {
+      -webkit-transform: rotate(360deg);  /* Chrome, Opera 15+, Safari 3.1+ */
+      -ms-transform: rotate(360deg);  /* IE 9 */
+      transform: rotate(360deg);  /* Firefox 16+, IE 10+, Opera */
+  }
+}
+@keyframes spin {
+  0%   {
+      -webkit-transform: rotate(0deg);  /* Chrome, Opera 15+, Safari 3.1+ */
+      -ms-transform: rotate(0deg);  /* IE 9 */
+      transform: rotate(0deg);  /* Firefox 16+, IE 10+, Opera */
+  }
+  100% {
+      -webkit-transform: rotate(360deg);  /* Chrome, Opera 15+, Safari 3.1+ */
+      -ms-transform: rotate(360deg);  /* IE 9 */
+      transform: rotate(360deg);  /* Firefox 16+, IE 10+, Opera */
+  }
+}

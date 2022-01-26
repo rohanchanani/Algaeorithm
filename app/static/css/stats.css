@@ -1,0 +1,97 @@
+.top, .bottom {
+  height: 50%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.counts, .concentrations {
+  width: 50%;
+  height: 100%;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.stats-title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: min(2.5vh, 2.5vw);
+  font-weight: bold;
+  font-family: DM Sans;
+  height: 15%;
+  width: 80%;
+  margin: 1vh 10%;
+  text-align: center;
+}
+
+.stats-info {
+  display: flex;
+  justify-content: center;
+  flex-flow: column nowrap;
+  height: 70%;
+  width: 80%;
+  margin: 2vh 10%;
+}
+
+.stats-section {
+  height: 5vh;
+  width: 80%;
+  margin: .3vh 10%;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: DM Sans;
+  font-size: min(2vh, 2vw);
+}
+
+.graphs {
+  height: 100%;
+  width: 50%;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.graph {
+  height: 70%;
+  width: 95%;
+  margin: 2vh 2.5%;
+  object-fit: contain;
+  flex-grow: 0;
+}
+
+
+.change-graph {
+  width: 95%;
+  height: 7.5%;
+  margin: .5vh 2.5%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.graph-button {
+  height: 33%;
+  padding-top: .25vh;
+  padding-bottom: .25vh;
+  flex-grow: 1;
+  margin-left: 2.5%;
+  margin-right: 2.5%;
+  border-radius: 5vh;
+  border: .1vh solid transparent;
+  max-width: 20%;
+  flex-shrink: 1;
+  font-size: min(1.75vh, 1.75vw);
+}
+
+.clicked {
+  border-color: #333;
+}

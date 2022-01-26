@@ -1,9 +1,10 @@
 let imageIndex = 0;
+let patchIndices = [];
 let imagesList = [];
 let fileList = document.getElementById("fileList");
 let fileInput = new FormData();
-let parsedResponse = {};
 let urlToSubmit = [];
+let parsedResponse = {};
 
 const checkBox = (boxId) => {
     document.getElementById(boxId).checked = !document.getElementById(boxId).checked;
@@ -88,7 +89,7 @@ const changeDepth = () => {
                 continue;
             }
             previewElement.children[1].setAttribute("class", "specific-inputs");
-            previewElement.children[1].children[1].setAttribute("class", "preview-input")
+            previewElement.children[1].children[1].setAttribute("class", "preview-depth")
         }
     } else {
         document.getElementById("default-label").setAttribute("class", "hidden");
@@ -154,14 +155,12 @@ const deleteImage = (imageName, imageType="file") => {
     }
 }
 
-const getFilename = (fullName, method, nameType) => {
-    let filename = "";
+const getFilename = (fullName, nameType) => {
     if (nameType=="url") {
-        filename = fullName.slice(fullName.lastIndexOf("/")+1);
+        return fullName.slice(fullName.lastIndexOf("/")+1);
     } else {
-        filename = fullName;
+        return fullName;
     }
-    return filename.slice(0, filename.lastIndexOf(".")) + method + filename.slice(filename.lastIndexOf("."));
 }
 
 const changePalette = (elementId) => {
@@ -177,63 +176,84 @@ const changePalette = (elementId) => {
 }
 
 const changeImage = (change) => {
-    displayImage(imageIndex + change, "Outlines");
+    displayImage(imageIndex + change, "Patches");
+}
+
+const changePatch = (change) => {
+    setPatch(imageIndex, patchIndices[imageIndex] + change);
 }
 
 const clickDownload = () => {
     document.getElementById("download-link").click();
 }
 
-const setImage = (index, method, type) => {
-    let resultsImage = document.getElementById("resultsImage");
-    resultsImage.setAttribute("src", "data:image/jpeg;base64,"+imagesList[index][0][method.toLowerCase()]);
-    resultsImage.setAttribute("title", "Download "+imagesList[index][1]);
+const setPatch = (imageIndex, patchIndex) => {
+    patchIndices[imageIndex] = patchIndex;
+    [imageName, imageOutput, dataType] = imagesList[imageIndex]
+    resultsImage.setAttribute("src", imageOutput["patches"][patchIndex]);
+    imageFilename = getFilename(imageName, dataType)
+    patchName = imageFilename.slice(0, imageFilename.lastIndexOf(".")) + "_patch" + (patchIndex+1).toString() + imageFilename.slice(imageFilename.lastIndexOf("."));
+    resultsImage.setAttribute("title", "Download "+ patchName);
+    resultsImage.setAttribute("class", "patch");
+    document.getElementById("lastPatch").setAttribute("class", "hidden");
+    document.getElementById("nextPatch").setAttribute("class", "hidden");
+    if (patchIndex) {
+        document.getElementById("lastPatch").setAttribute("class", "patch-nav");
+    }
+    if (patchIndex < imageOutput["patches"].length - 1) {
+        document.getElementById("nextPatch").setAttribute("class", "patch-nav");
+    }
     let download_link = document.getElementById("download-link");
-    download_link.setAttribute("href", "data:image/jpeg;base64,"+imagesList[index][0][method.toLowerCase()]);
-    download_link.setAttribute("download", getFilename(imagesList[index][1], method, type));
+    download_link.setAttribute("href", imageOutput["patches"][patchIndex]);
+    download_link.setAttribute("download", patchName);
 }
 
-const displayImage = (imagesIndex, method)  => {
+const setImage = (index, method, dataType) => {
+    let resultsImage = document.getElementById("resultsImage");
+    [imageName, imageOutput, dataType] = imagesList[index];
+    if (method=="Image") {
+        resultsImage.setAttribute("src", imageOutput["image"]);
+        resultsImage.setAttribute("title", "Download "+ imageName);
+        resultsImage.setAttribute("class", "algae");
+        document.getElementById("lastPatch").setAttribute("class", "hidden");
+        document.getElementById("nextPatch").setAttribute("class", "hidden");
+        let download_link = document.getElementById("download-link");
+        download_link.setAttribute("href", imageOutput["image"]);
+        download_link.setAttribute("download", getFilename(imageName, dataType));
+    } else {
+        setPatch(index, patchIndices[index], dataType);
+    }
+}
+
+const displayImage = (newIndex, method)  => {
     document.getElementById("show-images").setAttribute("class", "selected-tab");
     document.getElementById("show-overview").setAttribute("class", "tab");
     document.getElementById("show-table").setAttribute("class", "tab");
-    imageIndex = imagesIndex;
+    imageIndex = newIndex;
     changePalette("resultsInfo");
-    let count = imagesList[imagesIndex][0]["count"];
-    let location = imagesList[imagesIndex][1];
-    let type = imagesList[imagesIndex][2];
-    let resultsElement = document.getElementById("visual");
-    let i = 0;
-    while (i < resultsElement.childNodes.length) {
-        if (resultsElement.childNodes[i].nodeName.toLowerCase() == "a") {
-            resultsElement.childNodes[i].remove();
-        }
-        else {
-            i++;
-        }
-    }
+    let [imageName, imageOutput, dataType] = imagesList[imageIndex];
     document.getElementById("img-nav").setAttribute("class", "hidden");
     document.getElementById("lastImage").setAttribute("class", "invisible");
     document.getElementById("nextImage").setAttribute("class", "invisible");
     document.getElementById("show-pictures").innerHTML = "";
     document.getElementById("image-number").innerHTML = "";
-    document.getElementById("resultsCount").innerHTML = count;
-    document.getElementById("resultsConcentration").innerHTML = imagesList[imagesIndex][0]["concentration"];
+    document.getElementById("resultsCount").innerHTML = imageOutput["count"];
+    document.getElementById("resultsConcentration").innerHTML = imageOutput["concentration"]
     
-    if (count.includes("N/A")) {
+    if (imageOutput["count"].includes("N/A")) {
         document.getElementById("resultsImage").removeAttribute("src");
-        if (Object.keys(imagesList[imagesIndex][0]).length > 1) {
-            setImage(imagesIndex, "Image", type);
+        if (Object.keys(imageOutput).length > 2) {
+            setImage(newIndex, "Image", dataType);
         }
     }
     else {
         document.getElementById("resultsCount").innerHTML += "<span class='results-unit'> cells</span>";
         document.getElementById("resultsConcentration").innerHTML += "<span class='results-unit'> cells / mL</span>";
-        let methods = ["Image", "Outlines", "Circles"];
-        setImage(imagesIndex, method, type);
-        for (let i = 0; i < 3; i++) {
+        let methods = ["Image", "Patches"];
+        setImage(newIndex, method, dataType);
+        for (let i = 0; i < 2; i++) {
             let anchor = document.createElement("a");
-            anchor.setAttribute("onclick", `displayImage(${imagesIndex}, '${methods[i]}')`);
+            anchor.setAttribute("onclick", `displayImage(${newIndex}, '${methods[i]}')`);
             anchor.innerHTML = methods[i];
             if (methods[i]==method) {
                 anchor.setAttribute("class", "image-type clicked");
@@ -245,13 +265,13 @@ const displayImage = (imagesIndex, method)  => {
     }
     let navbar = document.getElementById("img-nav");
     navbar.setAttribute("class", "img-nav");
-    if (imagesIndex) {
+    if (newIndex) {
         let anchor = document.getElementById("lastImage");
         anchor.setAttribute("onclick", "changeImage(-1)");
         anchor.setAttribute("class", "last");
     }
-    document.getElementById("image-number").innerHTML = (imagesIndex + 1).toString() + " of " + imagesList.length.toString();
-    if (imagesIndex < imagesList.length - 1) {
+    document.getElementById("image-number").innerHTML = (newIndex + 1).toString() + " of " + imagesList.length.toString();
+    if (newIndex < imagesList.length - 1) {
         let anchor = document.getElementById("nextImage");
         anchor.setAttribute("onclick", "changeImage(1)");
         anchor.setAttribute("class", "next");
@@ -260,7 +280,7 @@ const displayImage = (imagesIndex, method)  => {
 
 const setGraph = (selectedGraph, metric) => {
     let graphList = Object.keys(parsedResponse["graphs"][metric]);
-    document.getElementById(metric.toLowerCase()+"s-graph").src = "data:image/jpeg;base64,"+parsedResponse["graphs"][metric][selectedGraph];
+    document.getElementById(metric.toLowerCase()+"s-graph").src = parsedResponse["graphs"][metric][selectedGraph];
     let changeGraph = document.getElementById(metric.toLowerCase()+"s-change");
     changeGraph.innerHTML = "";
     for (let graphType of graphList) {
@@ -290,7 +310,7 @@ const setOverview = () => {
     document.getElementById("show-images").setAttribute("class", "tab");
     document.getElementById("show-table").setAttribute("class", "tab");
     if (parsedResponse["stats"] == "No data available") {
-        displayImage(0, "Outlines");
+        displayImage(0, "Patches");
         document.getElementById("tab-nav").setAttribute("class", "hidden");
     } else {
         document.getElementById("counts-stats").innerHTML = "";
@@ -319,26 +339,28 @@ const setOverview = () => {
     }
 }
 
-const addInformation = (csv_rows) => {
+const addInformation = () => {
+    let csvRows = parsedResponse["csv"]
     let table = document.getElementById("csv-table");
     let thead = document.createElement("thead");
-    for (let header of csv_rows["header"]) {
+    for (let header of csvRows["header"]) {
         let td = document.createElement("td");
         td.innerHTML = header;
         thead.appendChild(td)
     }
     table.appendChild(thead);
-    for (let object of [[parsedResponse["file_counts"], "file"], [parsedResponse["url_counts"], "url"]]) {
-        for (let key of Object.keys(object[0])) {
-            imagesList.push([object[0][key], key, object[1]]);
+    for (let [data, dataType] of [[parsedResponse["file_counts"], "file"], [parsedResponse["url_counts"], "url"]]) {
+        for (const [imageName, imageOutput] of Object.entries(data)) {
+            imagesList.push([imageName, imageOutput, dataType]);
+            patchIndices.push(0);
             let linkIndex = imagesList.length - 1;
             let tr = document.createElement("tr");
-            tr.setAttribute("onclick", "displayImage("+linkIndex+", 'Outlines')");
-            tr.setAttribute("title", key);
-            for (let index in csv_rows[key]) {
+            tr.setAttribute("onclick", "displayImage("+linkIndex+", 'Patches')");
+            tr.setAttribute("title", imageName);
+            for (let columnNum in csvRows[imageName]) {
                 let td = document.createElement("td");
-                td.setAttribute("class", "data-"+index.toString());
-                td.innerHTML = csv_rows[key][index];
+                td.setAttribute("class", "data-"+columnNum.toString());
+                td.innerHTML = csvRows[imageName][columnNum];
                 tr.appendChild(td);
             }
             table.appendChild(tr);
@@ -442,16 +464,18 @@ const loadInformation = () => {
         if (request.readyState == 4 && document.getElementById("loader-wrapper").getAttribute("class") != "hidden") {
             imagesIndex = 0;
             imagesList = [];
+            patchIndices = [];
             parsedResponse = JSON.parse(request.response);
-            addInformation(parsedResponse["csv"]);
+            addInformation();
             document.getElementById("loader-wrapper").setAttribute("class", "hidden");
-            setOverview();
+            setOverview(parsedResponse);
         }    
     }
     if (!checkSensitives()) {
         return;
     }
     fileInput.append("url", JSON.stringify(urlToSubmit));
+    fileInput.append("num_patches", document.getElementById("num-patches").value);
     request.open("POST", "/");
     request.send(fileInput);
     document.getElementById("analyze-button").setAttribute("class", "hidden");
