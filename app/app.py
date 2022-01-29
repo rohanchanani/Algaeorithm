@@ -1,27 +1,22 @@
 from io import BytesIO
 from skimage import io
 import matplotlib.pyplot as plt
-from matplotlib.patches import Circle
 import numpy as np
-from flask import Flask, render_template, request, redirect, send_file
-from skimage.filters import threshold_otsu, threshold_local
+from flask import Flask, render_template, request
 from PIL import Image
 import os
 import numpy as np
-from skimage.color import rgb2gray
-from skimage.feature import peak_local_max
-from skimage.segmentation import watershed
-from scipy import ndimage, stats, optimize
+from scipy import optimize
 import cv2
 import json
 import base64
 import math
 import os
 import tensorflow as tf
-from object_detection.utils import label_map_util
-from object_detection.utils import visualization_utils as viz_utils
-from object_detection.builders import model_builder
-from object_detection.utils import config_util
+from models.object_detection.utils import label_map_util
+from models.object_detection.utils import visualization_utils as viz_utils
+from models.object_detection.builders import model_builder
+from models.object_detection.utils import config_util
 import random
 
 app = Flask(__name__)

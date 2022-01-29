@@ -11,5 +11,5 @@ If you intend to use the included well known types then don't forget to
 copy the contents of the 'include' directory somewhere as well, for example
 into '/usr/local/include/'.
 
-Please refer to our official github site for more installation instructions:
+Please refer to our models.official github site for more installation instructions:
   https://github.com/protocolbuffers/protobuf
