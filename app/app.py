@@ -1,5 +1,4 @@
 from io import BytesIO
-from skimage import io
 import matplotlib.pyplot as plt
 import numpy as np
 from flask import Flask, render_template, request
@@ -159,7 +158,7 @@ def load_response(key, filename, filedata, counts, concentrations, csv_rows, num
             row_to_append.insert(1, "N/A")
     if filename==filedata:
         try:
-            img = np.asarray(io.imread(filename))
+            img = np.asarray(cv2.imread(filename))
         except:
             final_data[key][filename]["count"] = "N/A"
             final_data[key][filename]["concentration"] = "N/A"
