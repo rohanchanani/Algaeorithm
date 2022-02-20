@@ -91,13 +91,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="setting">
-                        <div class="row">
-                            <label for="num-patches">Faster</label>
-                            <input type="range" min="1" max="10" value="5" id="num-patches">
-                            <label for="num-patches">More Accurate</label>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -144,10 +137,8 @@
                         <a id="nextImage" class="invisible"></a>
                     </div> 
                     <div class="image-container">
-                        <a id="lastPatch" class="hidden" onclick="changePatch(-1)"></a>
                         <img id="resultsImage" class="algae" onclick="clickDownload()">
                         <a id="download-link" class="hidden"></a>
-                        <a id="nextPatch" class="hidden" onclick="changePatch(1)"></a>
                     </div>
                     <div id="show-pictures" class="show-pictures"></div>
                 </div>
@@ -158,7 +149,7 @@
             </div>
         </div>
         <div id="tab-nav" class="hidden">
-            <a onclick="setTable()" id="show-table" class="tab">data table</a><a onclick="setOverview()" id="show-overview" class="tab">statistical overview</a><a onclick="displayImage(0, 'Patches')" id="show-images" class="tab">image analysis</a>
+            <a onclick="setTable()" id="show-table" class="tab">data table</a><a onclick="setOverview()" id="show-overview" class="tab">statistical overview</a><a onclick="displayImage(0, 'Output')" id="show-images" class="tab">image analysis</a>
         </div>
         <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>

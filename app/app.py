@@ -5,7 +5,7 @@ from flask import Flask, render_template, request
 from PIL import Image
 import os
 import numpy as np
-from scipy import optimize
+from scipy import optimize, stats
 import cv2
 import json
 import base64
@@ -29,6 +29,28 @@ cell_ckpt = tf.compat.v2.train.Checkpoint(model=cell_detection_model)
 cell_ckpt.restore(os.path.join("app", "static", "cells", 'ckpt-3')).expect_partial()
 
 category_index = label_map_util.create_category_index_from_labelmap(os.path.join("app", "static", "cells", "label_map.pbtxt"))
+
+def cells_fn(image):
+    image, shapes = cell_detection_model.preprocess(image)
+    prediction_dict = cell_detection_model.predict(image, shapes)
+    detections = cell_detection_model.postprocess(prediction_dict, shapes)
+    return detections
+
+#Load pipeline config and build a detection model
+diatom_configs = config_util.get_configs_from_pipeline_file(os.path.join("app", "static", "diatom", "pipeline.config"))
+diatom_detection_model = model_builder.build(model_config=diatom_configs['model'], is_training=False)
+
+# Restore checkpoint
+diatom_ckpt = tf.compat.v2.train.Checkpoint(model=diatom_detection_model)
+diatom_ckpt.restore(os.path.join("app", "static", "diatom", 'ckpt-3')).expect_partial()
+
+category_index = label_map_util.create_category_index_from_labelmap(os.path.join("app", "static", "cells", "label_map.pbtxt"))
+
+def diatom_fn(image):
+    image, shapes = diatom_detection_model.preprocess(image)
+    prediction_dict = diatom_detection_model.predict(image, shapes)
+    detections = diatom_detection_model.postprocess(prediction_dict, shapes)
+    return detections
 
 def cells_fn(image):
     image, shapes = cell_detection_model.preprocess(image)
@@ -74,48 +96,82 @@ def chlamy_concentration(cell_boxes, total_area, cell_volume=271.8, depth=0.1):
     expected_radius = (cell_volume * 3 / 4 / math.pi) ** (1/3)
     return len(cell_boxes) / (((expected_radius ** 2) / (avg_radius ** 2) * total_area) * 10 ** -9 * depth)
 
-def count_concentration_detections(image, num_patches=5, patch_size=500, threshold=0.1, cell_volume=271.8, depth=0.1):
+def diatom_concentration(cell_boxes, image_area, cell_length, mm_depth):
+    avg_length = np.mean(list(map(lambda x: ((x[2] - x[0]) ** 2 + (x[3] - x[1]) ** 2) ** 0.5, cell_boxes)))
+    return len(cell_boxes) / (((cell_length / avg_length) ** 2 * image_area) * 10 ** -9 * mm_depth)
+
+def intersection_over_union(box1, box2):
+    box1_x1 = box1[1]
+    box1_y1 = box1[0]
+    box1_x2 = box1[3]
+    box1_y2 = box1[2]
+    box2_x1 = box2[1]
+    box2_y1 = box2[0]
+    box2_x2 = box2[3]
+    box2_y2 = box2[2]
+    x1 = np.max(np.array([box1_x1, box2_x1]))
+    y1 = np.max(np.array([box1_y1, box2_y1]))
+    x2 = np.min(np.array([box1_x2, box2_x2]))
+    y2 = np.min(np.array([box1_y2, box2_y2]))
+    intersection = np.max(np.array([x2 - x1, 0])) * np.max(np.array([y2 - y1, 0]))
+    box1_area = abs((box1_x2 - box1_x1) * (box1_y2 - box1_y1))
+    box2_area = abs((box2_x2 - box2_x1) * (box2_y2 - box2_y1))
+    return intersection / (box1_area + box2_area - intersection + 1e-6)
+
+def suppress_boxes(detections, confidence_threshold=0.1, iou_threshold=0.5):
+    num_detections = int(detections.pop('num_detections'))
+    detections = {key: value[0, :num_detections].numpy() for key, value in detections.items()}
+    detections['num_detections'] = num_detections
+    # detection_classes should be ints.
+    detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
+
+    final_boxes = enumerate(detections["detection_boxes"])
+
+    final_boxes = sorted([bbox for bbox in final_boxes if detections["detection_scores"][bbox[0]] > confidence_threshold], key=lambda bbox: detections["detection_scores"][bbox[0]], reverse=True)
+    remaining_bboxes = []
+    while final_boxes:
+        top_bbox = final_boxes.pop(0)
+        final_boxes = [bbox for bbox in final_boxes if intersection_over_union(top_bbox[1], bbox[1]) < iou_threshold]
+        remaining_bboxes.append(top_bbox[1])
+
+    box_areas = list(map(lambda x: (x[3] - x[1]) * (x[2] - x[0]), remaining_bboxes))
+    adjusted_bboxes = [bbox for idx, bbox in enumerate(remaining_bboxes) if abs(stats.zscore(box_areas)[idx]) < 3]
+    return adjusted_bboxes
+
+def count_concentration_detections(image, cell_type, threshold=0.1, cell_volume=271.8, cell_length=16, depth=0.1):
     cropped_image = auto_crop(image)
     img_height = cropped_image.shape[0]
     img_width = cropped_image.shape[1]
-    total_area = 0
-    all_cells = []
-    patch_results = {"patch": [], "detections": []}
-    for i in range(num_patches):
-        width_offset = random.randint(0, max(img_width - patch_size, 0))
-        height_offset = random.randint(0, max(img_width - patch_size, 0))
-        img_patch = cropped_image[height_offset:min(img_height, height_offset + patch_size), width_offset:min(img_width, width_offset + patch_size), :]
-        input_tensor = tf.convert_to_tensor(np.expand_dims(img_patch, 0), dtype=tf.float32)
+    patch_size = round(np.mean(np.array([img_height, img_width])) * 0.4)
+    total_area = patch_size ** 2
+    patch_results = {}
+    width_offset = max(round((img_width - patch_size) / 2), 0)
+    height_offset = max(round((img_height - patch_size) / 2), 0)
+    img_patch = cropped_image[height_offset:min(img_height, height_offset + patch_size), width_offset:min(img_width, width_offset + patch_size), :]
+    input_tensor = tf.convert_to_tensor(np.expand_dims(img_patch, 0), dtype=tf.float32)
+    if cell_type=="chlamy":
         detections = cells_fn(input_tensor)
+    else:
+        detections = diatom_fn(input_tensor)
 
-        num_detections = int(detections.pop('num_detections'))
-        detections = {key: value[0, :num_detections].numpy() for key, value in detections.items()}
-        detections['num_detections'] = num_detections
+    patch_width = img_patch.shape[1]
+    patch_height = img_patch.shape[0]
 
-        # detection_classes should be ints.
-        detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
-        patch_width = img_patch.shape[1]
-        patch_height = img_patch.shape[0]
-        for i in range(detections["num_detections"]):
-            if detections["detection_scores"][i] <= threshold or i==detections["num_detections"] - 1:
-                all_boxes = detections["detection_boxes"][:i]
-                scaled_boxes = list(map(lambda x: [x[0] * patch_height, x[1] * patch_width, x[2]*patch_height, x[3] * patch_width], all_boxes))
-                break
-        all_cells.extend(scaled_boxes)
-        total_area += img_patch.shape[0] * img_patch.shape[1]
-        patch_results["patch"].append(img_patch)
-        patch_results["detections"].append(all_boxes)
-    estimated_cell_count = len(all_cells) * img_height * img_width / total_area
-    concentration = chlamy_concentration(all_cells, total_area, cell_volume, depth)
+    all_boxes = suppress_boxes(detections, threshold)
+        
+    scaled_boxes = list(map(lambda x: [x[0] * patch_height, x[1] * patch_width, x[2]*patch_height, x[3] * patch_width], all_boxes))
+    patch_results["patch"] = img_patch
+    patch_results["detections"] = np.array(all_boxes)
+    estimated_cell_count = len(scaled_boxes) * img_height * img_width / total_area
+    concentration = chlamy_concentration(scaled_boxes, total_area, cell_volume, depth) if cell_type=="chlamy" else diatom_concentration(scaled_boxes, total_area, cell_length, depth)
     return estimated_cell_count, concentration, patch_results
 
-def annotate_patches(patch_results):
-    annotated_patches = []
-    for patch, detections in zip(patch_results["patch"], patch_results["detections"]):
-        patch_with_detections = patch.copy()
+def annotate_patch(patch_results):
+    patch, detections = patch_results["patch"], patch_results["detections"]
+    patch_with_detections = patch.copy()
+    if detections.shape[0] > 0:
         viz_utils.draw_bounding_boxes_on_image_array(patch_with_detections, detections)
-        annotated_patches.append(image_array_to_base64(np.array(cv2.cvtColor(patch_with_detections, cv2.COLOR_BGR2RGB))))
-    return annotated_patches
+    return image_array_to_base64(np.array(cv2.cvtColor(patch_with_detections, cv2.COLOR_BGR2RGB)))
 
 def get_img_from_fig(fig, tight=True, dpi=180):
     buf = BytesIO()
@@ -146,7 +202,7 @@ def calculate_concentration(image, contours, cell_volume, mm_depth):
     expected_area = (((cell_volume * 3 / 4 / math.pi) ** (1/3)) ** 2) * math.pi
     return len(contours) / ((expected_area / avg_area * image.shape[0] * image.shape[1]) * 10 ** -8 * mm_depth / 10)
 
-def load_response(key, filename, filedata, counts, concentrations, csv_rows, num_patches):
+def load_response(key, filename, filedata, counts, concentrations, csv_rows, image_type):
     final_data[key][filename] = {}
     row_to_append = [filename, "N/A", "N/A"]
     depth = request.form.get("depth") if request.form.get("depth") else request.form.get("depth-"+filename)
@@ -173,8 +229,9 @@ def load_response(key, filename, filedata, counts, concentrations, csv_rows, num
             final_data[key][filename]["concentration"] = "N/A"
             csv_rows[filename] = row_to_append 
             return 0
-    try:
-        estimated_count, concentration, patch_results = count_concentration_detections(img, num_patches)
+    try: 
+        threshold = 0.5 if image_type=="chlamy" else 0.1
+        estimated_count, concentration, patch_results = count_concentration_detections(img, image_type, threshold)
     except:
         final_data[key][filename]["count"] = "N/A"
         final_data[key][filename]["concentration"] = "N/A"
@@ -193,7 +250,7 @@ def load_response(key, filename, filedata, counts, concentrations, csv_rows, num
     final_data[key][filename]["count"] = "{:.2e}".format(estimated_count)
     final_data[key][filename]["concentration"] = "{:.2e}".format(concentration)
     final_data[key][filename]["image"] = image_array_to_base64(img)
-    final_data[key][filename]["patches"] = annotate_patches(patch_results)
+    final_data[key][filename]["output"] = annotate_patch(patch_results)
     counts.append(estimated_count)
     concentrations.append(concentration)
     
@@ -325,11 +382,11 @@ def index_post():
         counts_y = []
         global concentrations_y
         concentrations_y = []
-    num_patches = int(request.form.get("num_patches"))
+    image_type = request.form.get("cell_type")
     for filename, file in request.files.items():
-        load_response("file_counts", filename, file, counts, concentrations, csv_rows, num_patches)
+        load_response("file_counts", filename, file, counts, concentrations, csv_rows, image_type)
     for image_url in json.loads(request.form.get("url")):
-        load_response("url_counts", image_url, image_url, counts, concentrations, csv_rows, num_patches)
+        load_response("url_counts", image_url, image_url, counts, concentrations, csv_rows, image_type)
     csv_string = ""
     for row in list(csv_rows.values()):
         csv_string += ",".join(row) + "\r\n"

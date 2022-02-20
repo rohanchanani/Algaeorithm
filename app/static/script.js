@@ -1,5 +1,4 @@
 let imageIndex = 0;
-let patchIndices = [];
 let imagesList = [];
 let fileList = document.getElementById("fileList");
 let fileInput = new FormData();
@@ -176,53 +175,24 @@ const changePalette = (elementId) => {
 }
 
 const changeImage = (change) => {
-    displayImage(imageIndex + change, "Patches");
-}
-
-const changePatch = (change) => {
-    setPatch(imageIndex, patchIndices[imageIndex] + change);
+    displayImage(imageIndex + change, "Output");
 }
 
 const clickDownload = () => {
     document.getElementById("download-link").click();
 }
 
-const setPatch = (imageIndex, patchIndex) => {
-    patchIndices[imageIndex] = patchIndex;
-    [imageName, imageOutput, dataType] = imagesList[imageIndex]
-    resultsImage.setAttribute("src", imageOutput["patches"][patchIndex]);
-    imageFilename = getFilename(imageName, dataType)
-    patchName = imageFilename.slice(0, imageFilename.lastIndexOf(".")) + "_patch" + (patchIndex+1).toString() + imageFilename.slice(imageFilename.lastIndexOf("."));
-    resultsImage.setAttribute("title", "Download "+ patchName);
-    resultsImage.setAttribute("class", "patch");
-    document.getElementById("lastPatch").setAttribute("class", "hidden");
-    document.getElementById("nextPatch").setAttribute("class", "hidden");
-    if (patchIndex) {
-        document.getElementById("lastPatch").setAttribute("class", "patch-nav");
-    }
-    if (patchIndex < imageOutput["patches"].length - 1) {
-        document.getElementById("nextPatch").setAttribute("class", "patch-nav");
-    }
-    let download_link = document.getElementById("download-link");
-    download_link.setAttribute("href", imageOutput["patches"][patchIndex]);
-    download_link.setAttribute("download", patchName);
-}
-
 const setImage = (index, method, dataType) => {
     let resultsImage = document.getElementById("resultsImage");
     [imageName, imageOutput, dataType] = imagesList[index];
-    if (method=="Image") {
-        resultsImage.setAttribute("src", imageOutput["image"]);
-        resultsImage.setAttribute("title", "Download "+ imageName);
-        resultsImage.setAttribute("class", "algae");
-        document.getElementById("lastPatch").setAttribute("class", "hidden");
-        document.getElementById("nextPatch").setAttribute("class", "hidden");
-        let download_link = document.getElementById("download-link");
-        download_link.setAttribute("href", imageOutput["image"]);
-        download_link.setAttribute("download", getFilename(imageName, dataType));
-    } else {
-        setPatch(index, patchIndices[index], dataType);
-    }
+    resultsImage.setAttribute("src", imageOutput[method.toLowerCase()]);
+    resultsImage.setAttribute("class", "algae");
+    let download_link = document.getElementById("download-link");
+    download_link.setAttribute("href", imageOutput[method.toLowerCase()]);
+    let imageFilename = getFilename(imageName, dataType);
+    let downloadName = imageFilename.slice(0, imageFilename.lastIndexOf(".")) + "_" + method.toLowerCase() + imageFilename.slice(imageFilename.lastIndexOf("."));
+    download_link.setAttribute("download", downloadName);
+    resultsImage.setAttribute("title", "Download "+ downloadName);
 }
 
 const displayImage = (newIndex, method)  => {
@@ -249,7 +219,7 @@ const displayImage = (newIndex, method)  => {
     else {
         document.getElementById("resultsCount").innerHTML += "<span class='results-unit'> cells</span>";
         document.getElementById("resultsConcentration").innerHTML += "<span class='results-unit'> cells / mL</span>";
-        let methods = ["Image", "Patches"];
+        let methods = ["Image", "Output"];
         setImage(newIndex, method, dataType);
         for (let i = 0; i < 2; i++) {
             let anchor = document.createElement("a");
@@ -310,7 +280,7 @@ const setOverview = () => {
     document.getElementById("show-images").setAttribute("class", "tab");
     document.getElementById("show-table").setAttribute("class", "tab");
     if (parsedResponse["stats"] == "No data available") {
-        displayImage(0, "Patches");
+        displayImage(0, "Output");
         document.getElementById("tab-nav").setAttribute("class", "hidden");
     } else {
         document.getElementById("counts-stats").innerHTML = "";
@@ -352,10 +322,9 @@ const addInformation = () => {
     for (let [data, dataType] of [[parsedResponse["file_counts"], "file"], [parsedResponse["url_counts"], "url"]]) {
         for (const [imageName, imageOutput] of Object.entries(data)) {
             imagesList.push([imageName, imageOutput, dataType]);
-            patchIndices.push(0);
             let linkIndex = imagesList.length - 1;
             let tr = document.createElement("tr");
-            tr.setAttribute("onclick", "displayImage("+linkIndex+", 'Patches')");
+            tr.setAttribute("onclick", "displayImage("+linkIndex+", 'Output')");
             tr.setAttribute("title", imageName);
             for (let columnNum in csvRows[imageName]) {
                 let td = document.createElement("td");
@@ -464,7 +433,6 @@ const loadInformation = () => {
         if (request.readyState == 4 && document.getElementById("loader-wrapper").getAttribute("class") != "hidden") {
             imagesIndex = 0;
             imagesList = [];
-            patchIndices = [];
             parsedResponse = JSON.parse(request.response);
             addInformation();
             document.getElementById("loader-wrapper").setAttribute("class", "hidden");
@@ -475,7 +443,11 @@ const loadInformation = () => {
         return;
     }
     fileInput.append("url", JSON.stringify(urlToSubmit));
-    fileInput.append("num_patches", document.getElementById("num-patches").value);
+    if (document.getElementById("clear").checked) {
+        fileInput.append("cell_type", "chlamy");
+    } else {
+        fileInput.append("cell_type", "diatom");
+    }
     request.open("POST", "/");
     request.send(fileInput);
     document.getElementById("analyze-button").setAttribute("class", "hidden");

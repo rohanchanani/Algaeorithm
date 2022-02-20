@@ -81,54 +81,13 @@ background-image: url("/static/logos/next_button.svg");
   justify-content: center;
 }
 
-.algae, .patch {
+.algae {
   height: 60vh;
   object-fit: contain;
   flex-shrink: 1;
   margin: 2.5vh 2.5vw;
   cursor: pointer;
-}
-
-.algae {
   width: 62.5vw;
-}
-
-.patch {
-  width: 52.5vw;
-}
-
-.patch-nav {
-  margin: 1.25vw;
-  width: 2.5vw;
-  height: 2.5vw;
-  border-style: solid;
-  border-width: 1px;
-  border-color: transparent;
-  border-radius: 1vw;
-  background-size: 2.5vw 2.5vw;
-  transition-property: all;
-  transition-duration: 300ms;
-  transition-timing-function: ease;
-}
-
-#lastPatch {
-  background-image: url("/static/logos/last_button.svg");
-}
-
-#nextPatch {
-  background-image: url("/static/logos/next_button.svg");
-}
-
-#lastPatch:hover {
-  background-color: hsla(0, 0.00%, 20.00%, 1.00);
-  background-image: url("/static/logos/last_button(white).svg");
-  color: hsla(0, 0.00%, 100.00%, 1.00);
-}
-
-#nextPatch:hover {
-  background-color: hsla(0, 0.00%, 20.00%, 1.00);
-  background-image: url("/static/logos/next_button(white).svg");
-  color: hsla(0, 0.00%, 100.00%, 1.00);
 }
 
 .show-pictures {
