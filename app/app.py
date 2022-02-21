@@ -128,6 +128,8 @@ def suppress_boxes(detections, confidence_threshold=0.1, iou_threshold=0.5):
     final_boxes = enumerate(detections["detection_boxes"])
 
     final_boxes = sorted([bbox for bbox in final_boxes if detections["detection_scores"][bbox[0]] > confidence_threshold], key=lambda bbox: detections["detection_scores"][bbox[0]], reverse=True)
+    if len(final_boxes) < 2:
+        final_boxes = list(enumerate(detections["detection_boxes"]))
     remaining_bboxes = []
     while final_boxes:
         top_bbox = final_boxes.pop(0)
