@@ -145,7 +145,7 @@ def count_concentration_detections(image, cell_type, image_name, threshold=0.1, 
     cropped_image = auto_crop(image)
     image_to_upload = Image.fromarray(cropped_image.astype('uint8'))
     in_mem_file = BytesIO()
-    image_to_upload.save(in_mem_file, format=image_to_upload.format)
+    image_to_upload.save(in_mem_file, format: "jpg")
     in_mem_file.seek(0)
     client = boto3.client("s3")
     client.put_object(Body=in_mem_file, Bucket="algaeorithm-photos", key=image_name)
