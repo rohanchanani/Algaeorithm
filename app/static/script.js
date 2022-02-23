@@ -175,7 +175,7 @@ const changePalette = (elementId) => {
 }
 
 const changeImage = (change) => {
-    displayImage(imageIndex + change, "Output");
+    displayImage(imageIndex + change, "output");
 }
 
 const clickDownload = () => {
@@ -185,14 +185,15 @@ const clickDownload = () => {
 const setImage = (index, method, dataType) => {
     let resultsImage = document.getElementById("resultsImage");
     [imageName, imageOutput, dataType] = imagesList[index];
-    resultsImage.setAttribute("src", imageOutput[method.toLowerCase()]);
+    resultsImage.setAttribute("src", imageOutput[method]);
     resultsImage.setAttribute("class", "algae");
     let download_link = document.getElementById("download-link");
-    download_link.setAttribute("href", imageOutput[method.toLowerCase()]);
+    download_link.setAttribute("href", imageOutput[method]);
     let imageFilename = getFilename(imageName, dataType);
-    let downloadName = imageFilename.slice(0, imageFilename.lastIndexOf(".")) + "_" + method.toLowerCase() + imageFilename.slice(imageFilename.lastIndexOf("."));
+    let downloadName = imageFilename.slice(0, imageFilename.lastIndexOf(".")) + "_" + method + imageFilename.slice(imageFilename.lastIndexOf("."));
     download_link.setAttribute("download", downloadName);
-    resultsImage.setAttribute("title", "Download "+ downloadName);
+    document.getElementById("download-anchor").setAttribute("title", "Download "+ downloadName);
+    resultsImage.setAttribute("title", downloadName);
 }
 
 const displayImage = (newIndex, method)  => {
@@ -213,14 +214,16 @@ const displayImage = (newIndex, method)  => {
     if (imageOutput["count"].includes("N/A")) {
         document.getElementById("resultsImage").removeAttribute("src");
         if (Object.keys(imageOutput).length > 2) {
-            setImage(newIndex, "Image", dataType);
+            setImage(newIndex, "image", dataType);
         }
     }
     else {
         document.getElementById("resultsCount").innerHTML += "<span class='results-unit'> cells</span>";
         document.getElementById("resultsConcentration").innerHTML += "<span class='results-unit'> cells / mL</span>";
-        let methods = ["Image", "Output"];
-        setImage(newIndex, method, dataType);
+        let methods = ["image", "output"];
+        let silentAnchor = document.createElement("a");
+        silentAnchor.setAttribute("class", "download-photo ghost");
+        document.getElementById("show-pictures").appendChild(silentAnchor);
         for (let i = 0; i < 2; i++) {
             let anchor = document.createElement("a");
             anchor.setAttribute("onclick", `displayImage(${newIndex}, '${methods[i]}')`);
@@ -232,6 +235,12 @@ const displayImage = (newIndex, method)  => {
             }
             document.getElementById("show-pictures").appendChild(anchor);
         }
+        let downloadAnchor = document.createElement("a");
+        downloadAnchor.setAttribute("class", "download-photo");
+        downloadAnchor.setAttribute("onclick", "clickDownload()");
+        downloadAnchor.setAttribute("id", "download-anchor");
+        document.getElementById("show-pictures").appendChild(downloadAnchor);
+        setImage(newIndex, method, dataType);
     }
     let navbar = document.getElementById("img-nav");
     navbar.setAttribute("class", "img-nav");
@@ -280,7 +289,7 @@ const setOverview = () => {
     document.getElementById("show-images").setAttribute("class", "tab");
     document.getElementById("show-table").setAttribute("class", "tab");
     if (parsedResponse["stats"] == "No data available") {
-        displayImage(0, "Output");
+        displayImage(0, "output");
         document.getElementById("tab-nav").setAttribute("class", "hidden");
     } else {
         document.getElementById("counts-stats").innerHTML = "";
@@ -324,7 +333,7 @@ const addInformation = () => {
             imagesList.push([imageName, imageOutput, dataType]);
             let linkIndex = imagesList.length - 1;
             let tr = document.createElement("tr");
-            tr.setAttribute("onclick", "displayImage("+linkIndex+", 'Output')");
+            tr.setAttribute("onclick", "displayImage("+linkIndex+", 'output')");
             tr.setAttribute("title", imageName);
             for (let columnNum in csvRows[imageName]) {
                 let td = document.createElement("td");

@@ -148,3 +148,19 @@ background-color: hsla(0, 0.00%, 100.00%, 0.50);
 .results-unit {
   font-size: min(3vh, 2vw);
 }
+
+.ghost {
+  visibility: hidden;
+}
+.download-photo {
+  height: 5vh;
+  width: 5vh;
+  border-radius: 2vh;
+  background-image: url("/static/logos/download.svg");
+  background-position: center;
+  background-size: 2vh;
+  background-repeat: no-repeat;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: none;
+  transition: all 200ms ease;
+}

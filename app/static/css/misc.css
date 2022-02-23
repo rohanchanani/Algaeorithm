@@ -15,13 +15,13 @@ a, button {
   background-clip: border-box;
 }
 .header {
-  height: 8%;
-  width: 100%;
+  width: 100vw;
+  height: 8vh;
   display: flex;
+  margin-bottom: 2.5vh;
+  background: rgba(255, 255, 255, 0.85);
   justify-content: center;
-  align-items: center; 
-  margin-bottom: 2vh;
-  background-color: white;
+  align-items: center;
 }
 .logo {
   display: block;

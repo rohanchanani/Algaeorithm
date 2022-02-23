@@ -1,0 +1,60 @@
+@media only screen and (min-width : 120px) and (max-width : 640px) {
+    .palette {
+        width: 100vw;
+    }
+    
+    .lab {
+        flex-flow: column;
+        height: 80vh;
+    }
+    
+    .photos {
+        width: 100vw !important;
+        height: 50vh !important;
+    }
+    
+    .add-photo {
+        height: 30vw !important;
+        width: 30vw !important;
+        }
+    
+    .preview-image {
+        height: 30vw !important;
+    }
+        
+    .settings {
+        flex-flow: row !important;
+        width: 100vw !important;
+        height: 30vh !important;
+        }
+    
+    .setting {
+        height: 30vh !important;
+        justify-content: space-around;
+        flex-grow: 1;
+    }
+    
+    .settings-label {
+        display: flex !important;
+        font-size: 15px !important;
+    }
+    
+    .types {
+        flex-flow: column;
+    }
+    
+    .photo-type {
+        border-radius: 30px !important;
+        height: 9vh;
+        width: auto !important;
+    }
+    
+    .row {
+        flex-direction: column;
+        justify-content: left;
+    }
+        
+    .analyze-button {
+        width: 90vw !important;
+    }
+}
