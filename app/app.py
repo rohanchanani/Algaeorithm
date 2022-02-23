@@ -148,7 +148,7 @@ def count_concentration_detections(image, cell_type, image_name, threshold=0.1, 
     image_to_upload.save(in_mem_file, format="jpeg")
     in_mem_file.seek(0)
     client = boto3.client("s3")
-    client.put_object(Body=in_mem_file, Bucket="algaeorithm-photos", key=image_name)
+    client.put_object(Body=in_mem_file, Bucket="algaeorithm-photos", Key=image_name)
     img_height = cropped_image.shape[0]
     img_width = cropped_image.shape[1]
     patch_size = round(np.mean(np.array([img_height, img_width])) * 0.4)
