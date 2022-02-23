@@ -143,12 +143,6 @@ def suppress_boxes(detections, confidence_threshold=0.1, iou_threshold=0.5):
 
 def count_concentration_detections(image, cell_type, image_name, threshold=0.1, cell_volume=271.8, cell_length=16, depth=0.1):
     cropped_image = auto_crop(image)
-    image_to_upload = Image.fromarray(cropped_image.astype('uint8'))
-    in_mem_file = BytesIO()
-    image_to_upload.save(in_mem_file, format="jpeg")
-    in_mem_file.seek(0)
-    client = boto3.client("s3")
-    client.put_object(Body=in_mem_file, Bucket="algaeorithm-photos", Key=image_name)
     img_height = cropped_image.shape[0]
     img_width = cropped_image.shape[1]
     patch_size = round(np.mean(np.array([img_height, img_width])) * 0.4)
@@ -157,6 +151,13 @@ def count_concentration_detections(image, cell_type, image_name, threshold=0.1, 
     width_offset = max(round((img_width - patch_size) / 2), 0)
     height_offset = max(round((img_height - patch_size) / 2), 0)
     img_patch = cropped_image[height_offset:min(img_height, height_offset + patch_size), width_offset:min(img_width, width_offset + patch_size), :]
+    image_to_upload = np.array(cv2.cvtColor(img_patch, cv2.COLOR_BGR2RGB))
+    image_to_upload = Image.fromarray(image_to_upload.astype('uint8'))
+    in_mem_file = BytesIO()
+    image_to_upload.save(in_mem_file, format="jpeg")
+    in_mem_file.seek(0)
+    client = boto3.client("s3")
+    client.put_object(Body=in_mem_file, Bucket="algaeorithm-photos", Key=image_name)
     input_tensor = tf.convert_to_tensor(np.expand_dims(img_patch, 0), dtype=tf.float32)
     if cell_type=="chlamy":
         detections = cells_fn(input_tensor)
