@@ -156,8 +156,8 @@ def count_concentration_detections(image, cell_type, image_name, threshold=0.1, 
     in_mem_file = BytesIO()
     image_to_upload.save(in_mem_file, format="jpeg")
     in_mem_file.seek(0)
-    #client = boto3.client("s3")
-    #client.put_object(Body=in_mem_file, Bucket="algaeorithm-photos", Key=image_name)
+    client = boto3.client("s3")
+    client.put_object(Body=in_mem_file, Bucket="algaeorithm-photos", Key=image_name)
     input_tensor = tf.convert_to_tensor(np.expand_dims(img_patch, 0), dtype=tf.float32)
     if cell_type=="chlamy":
         detections = cells_fn(input_tensor)
