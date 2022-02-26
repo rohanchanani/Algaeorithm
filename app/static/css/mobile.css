@@ -47,6 +47,12 @@
         border-radius: 30px !important;
         height: 9vh;
         width: auto !important;
+        color: transparent;
+    }
+
+    .photo-type-label {
+        cursor: pointer;
+        color: transparent;
     }
     
     .row {

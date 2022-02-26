@@ -13,6 +13,7 @@ a, button {
   background-attachment: fixed;
   background-image: linear-gradient(to bottom, #124d5a, hsla(190.83333333333331, 66.67%, 21.18%, 0.25));
   background-clip: border-box;
+  font-family: DM Sans;
 }
 .header {
   width: 100vw;
