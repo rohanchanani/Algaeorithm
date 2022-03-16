@@ -1,2 +1,3 @@
 #!/bin/bash
-pkill gunicorn
+
+sudo pkill gunicorn
