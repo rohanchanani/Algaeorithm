@@ -376,6 +376,9 @@ def load_graphs(counts, concentrations):
 def index_get():
     return render_template("new_index.html")
 
+@app.route("/health")
+def health_check():
+    return "200 OK"
 
 @app.route('/', methods=["POST"])
 def index_post():       
