@@ -1,5 +1,6 @@
 #!/bin/bash
-sudo yum -y install python3
-sudo yum -y install python3-pip
-cd /home/ec2-user
+sudo apt-get install -y python3
+sudo apt-get install -y python3-pip
+sudo apt-get install -y nginx
+cd /home/ubuntu
 sudo rm -r *
