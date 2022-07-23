@@ -1,0 +1,37 @@
+.press {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    padding: 15px 0 15px 0;
+    max-width: 550px;
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    background-color: white;
+    color: #333;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    transition: background-color 100ms ease;
+  }
+
+  .press:hover {
+    background-color: rgba(247, 249, 249);
+  }
+
+  .press-title {
+    max-width: 468px;
+    flex-wrap: wrap;
+  }
+
+  .press-logo {
+    max-width: 468px;
+    max-height: 50px;
+    flex-grow: 1;
+    flex-basis: 0;
+  }
+
+  .press-image {
+    max-width: 468px;
+    border-radius: 10px;
+    margin: 1vh 0 1vh 0;
+  }

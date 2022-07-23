@@ -151,13 +151,13 @@ def count_concentration_detections(image, cell_type, image_name, threshold=0.1, 
     width_offset = max(round((img_width - patch_size) / 2), 0)
     height_offset = max(round((img_height - patch_size) / 2), 0)
     img_patch = cropped_image[height_offset:min(img_height, height_offset + patch_size), width_offset:min(img_width, width_offset + patch_size), :]
-    image_to_upload = np.array(cv2.cvtColor(img_patch, cv2.COLOR_BGR2RGB))
-    image_to_upload = Image.fromarray(image_to_upload.astype('uint8'))
-    in_mem_file = BytesIO()
-    image_to_upload.save(in_mem_file, format="jpeg")
-    in_mem_file.seek(0)
-    client = boto3.client("s3")
-    client.put_object(Body=in_mem_file, Bucket="algaeorithm-photos", Key=image_name)
+    #image_to_upload = np.array(cv2.cvtColor(img_patch, cv2.COLOR_BGR2RGB))
+    #image_to_upload = Image.fromarray(image_to_upload.astype('uint8'))
+    #in_mem_file = BytesIO()
+    #image_to_upload.save(in_mem_file, format="jpeg")
+    #in_mem_file.seek(0)
+    #client = boto3.client("s3")
+    #client.put_object(Body=in_mem_file, Bucket="algaeorithm-photos", Key=image_name)
     input_tensor = tf.convert_to_tensor(np.expand_dims(img_patch, 0), dtype=tf.float32)
     if cell_type=="chlamy":
         detections = cells_fn(input_tensor)
@@ -374,11 +374,23 @@ def load_graphs(counts, concentrations):
                 final_data["graphs"][metric]["Logistic Growth"] = is_logistic
 @app.route('/')
 def index_get():
-    return render_template("new_index.html")
+    return render_template("bad_index.html")
 
 @app.route("/health")
 def health_check():
     return "200 OK"
+
+@app.route("/content")
+def content():
+    return render_template("content.html")
+
+@app.route("/press")
+def press():
+    return render_template("press.html")
+
+@app.route("/about")
+def about():
+    return render_template("about.html")
 
 @app.route('/', methods=["POST"])
 def index_post():       

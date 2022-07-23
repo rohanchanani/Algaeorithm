@@ -5,7 +5,6 @@ a, button {
 .body {
   display: flex;
   flex-flow: column nowrap;
-  align-items: center;
   height: 100vh;
   width: 100vw;
   margin: 0;
@@ -14,23 +13,146 @@ a, button {
   background-image: linear-gradient(to bottom, #124d5a, hsla(190.83333333333331, 66.67%, 21.18%, 0.25));
   background-clip: border-box;
   font-family: DM Sans;
-}
-.header {
-  width: 100vw;
-  height: 8vh;
-  display: flex;
-  margin-bottom: 2.5vh;
-  background: rgba(255, 255, 255, 0.85);
-  justify-content: center;
   align-items: center;
 }
-.logo {
-  display: block;
-  height: 100%;
-  font-family: DM Sans;
-  font-size: 6vh;
-  text-align: center;
+
+.header {
+  width: 86vw;
+  height: 5vh;
+  display: flex;
+  margin: 1vh 0vh 1.5vh 0vh;
+  background: transparent;
+  justify-content: space-between;
+  align-items: center;
+  }
+  
+  .logo {
+    width: 5vh;
+    height: 5vh;
+    background-image: url("/static/logos/algae");
+    background-position: center;
+    background-size: 4.5vh;
+    background-repeat: no-repeat;
+    z-index: 2;
+  }
+
+  nav {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    background: url("menu\ algae.jpg") no-repeat center center fixed;
+    background-size: cover;
+    height: 100%;
+    background-color: #333;
+    z-index: 1;
+    visibility: hidden;
+    opacity: 0;
+    transition: all 300ms ease;
+  }
+
+  nav ul {
+    display: flex;
+    float: right;
+    flex-flow: column;
+    justify-content: center;
+    text-align: right;
+    width: fit-content;
+    height: 35vh;
+    margin: 0 7vw 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  nav li {
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  nav a {
+    font-size: 4vh;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.96);
+    opacity: 0;
+    transition: opacity 200ms ease 300ms;
+  }
+
+  nav h5 {
+    position: absolute;
+    bottom: 2vh;
+    left: 7vw;
+    color: rgba(255, 255, 255, 0.96);
+    text-align: left;
+    font-size: 0.83em;
+    font-weight: 400;
+    opacity: 0;
+    transition: all 200ms ease 300ms;
+  }
+
+  .nav-info {
+    color: rgba(255, 255, 255, 0.96);
+    text-align: left;
+    font-size: 1em;
+    font-weight: 400;
+  }
+
+  nav a:hover {
+    color: #d66d50;
+  }
+
+  .nav-toggle {
+  display: none;
 }
+
+  .nav-toggle-label {
+    width: 4vh;
+    height: 4vh;
+    border-radius: 2vh;
+    background-image: url("hamburger.svg");
+    background-position: center;
+    background-size: 3vh;
+    background-repeat: no-repeat;
+    transition: all 100ms ease;
+    z-index: 2;
+    cursor: pointer;
+  }
+
+  .nav-toggle:checked ~ .nav-toggle-label {
+    background-image: url("delete\ \(white\).svg");
+  }
+
+  .nav-toggle-label:hover {
+    background-color: rgba(0, 0, 0, 0.164);
+  }
+
+  .nav-toggle:checked ~ nav {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  .nav-toggle:checked ~ nav a {
+    opacity: 1;
+  }
+
+  .nav-toggle:checked ~ nav h5 {
+    opacity: 1;
+  }
+
+  .page {
+    height: 90vh;
+    align-items: center;
+    overflow-y:auto;
+  }
+
+  .page::-webkit-scrollbar {
+    display: none;
+  }
+
+  .page-name {
+    font-family: 'Amiri', serif;
+    color: rgba(255, 255, 255, 0.96);
+  }
 
 #algaeorithm {
   color: black;

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algaeorithm</title>
+    <script
+        src="https://code.jquery.com/jquery-3.6.0.js"
+        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+        crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <body class="body">
+        <div class="header">
+            <a href="index.html" id="algaeorithm" class="logo"></a>
+            <a href="index.html" id="home"><h1 class="page-name">algaeorithm</h1></a>
+            <input type="checkbox" class="nav-toggle" id="nav-toggle">
+            <label for="nav-toggle" class="nav-toggle-label">
+            </label>
+            <nav>
+                <ul class="primary-nav">
+                    <li><a href="index.html">home</a></li>
+                    <li><a href="content.html">content</a></li>
+                    <li><a href="about.html">about</a></li>
+                    <li><a href="press.html">press</a></li>
+                    <h5><a class="nav-info" href="mailto:info@algaeorithm.com" target="_blank">info@algaeorithm.com</a><br><a class="nav-info" href="https://www.youtube.com/channel/UCtPHghFQx5i-as_V9ly1dxQ" target="_blank">YOUTUBE</a><br><br>© 2022 Algaeorithm<br>images by James Weiss<br>created by Ashwin Mukherjee & Rohan Chanani</h5>
+                </ul>
+            </nav>
+        </div>
+        <div id="inputInfo" class="palette">
+            <div class="lab">
+                <div class="photos">
+                    <div class="previews">
+                        <label for="additional" class="add-photo"></label>
+                        <input id="additional" type="file" class="hidden" accept="image/png, image/jpeg" multiple>
+                        <div class="preview">
+                            <img src="https://uploads-ssl.webflow.com/611968865cc3c3243e59ac45/611db6a6c0a8b01cdbfca753_chlamydomonas_montage_2.jpg" class="preview-image"/>
+                            <button class="delete-photo"></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings">
+                    <div class="setting">
+                        <h2 class="setting-name">algae type</h2>
+                        <div class="types">
+                            <label for="clear" class="photo-type-label">
+                                <input type="radio" name="image-type" id="clear" class="hidden">
+                                <img src="chlamy square.jpg" class="photo-type"/>
+                            </label>
+                            <label for="hemocytometer" class="photo-type-label">
+                                <input type="radio" name="image-type" id="hemocytometer" class="hidden">
+                                <img src="tricornutum square.png" class="photo-type"/>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="setting">
+                        <h2 class="setting-name">depth</h2>
+                        <div class="row">
+                            <label for="consistent" class="settings-label">
+                                <input type="radio" name="depth" id="consistent" checked>
+                                <div class="radio"></div>
+                                consistent:
+                            </label>
+                            <label for="all-depth" class="settings-label">
+                                <input type="number" id="all-depth" class="settings-input" autocomplete="off" value="0.1">
+                                mm
+                            </label>
+                        </div>
+                        <div class="row">
+                            <label for="varied" class="settings-label">
+                                <input type="radio" name="depth" id="varied">
+                                <div class="radio"></div>
+                                varied
+                            </label>
+                            <label for="default-depth" class="settings-label" id="default-label"> 
+                                <input type="number" id="default-depth" class="settings-input" autocomplete="off" value="0.1">
+                                mm | default
+                            </label>
+                        </div>
+                        <div class="row">
+                            <label for="estimate" class="settings-label">
+                                <input type="radio" name="depth" id="estimate">
+                                <div class="radio"></div>
+                                estimate depth
+                            </label>
+                        </div>
+                    </div>
+                    <div class="setting">
+                        <div class="settings-label">
+                            <h2 class="setting-name">time</h2>
+                            <label for="time-sensitive" class="switch">
+                                <input type="checkbox" id="time-sensitive" class="switch_input">
+                                <div class="switch_fill"></div>
+                            </label>
+                        </div>
+                        <div class="row">
+                            <label for="time-units" class="settings-label">units:</label>
+                            <input type="text" id="time-units" class="settings-input" autocomplete="off" value="days">
+                        </div>
+                        <div class="row">
+                            <label for="time-interval" class="settings-label">interval:</label>
+                            <label for="time-interval" class="settings-label">
+                                <input type="number" id="time-interval" class="settings-input" autocomplete="off" value="1">
+                                days
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="analyze-button" class="analyze-button">analyze images
+            <a onclick="loadInformation()" class="hidden"></a>
+        </div>
+    </body>
+    <script src="static/script.js"></script>
+</body>
+</html>

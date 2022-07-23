@@ -1,136 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Algaeorithm</title>
-        <link href="https://fonts.googleapis.com/css2?family=DM+Sans&display=swap" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="static/input.css">
-        <link rel="stylesheet" href="static/results.css">
-        <link rel="stylesheet" href="static/loading.css">
-        <link rel="stylesheet" href="static/stats.css">
-        <link rel="stylesheet" href="static/table.css">
-        <link rel="stylesheet" href="static/misc.css">
-    </head>
-    <body id="body" class="body vsc-initialized">    
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algaeorithm</title>
+    <script
+        src="https://code.jquery.com/jquery-3.6.0.js"
+        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+        crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/index.css">
+</head>
+<body>
+    <body class="body">
         <div class="header">
-            <a href="/" id="algaeorithm"><h1 class="logo">Algaeorithm</h1></a>
+            <a href="/" id="algaeorithm" class="logo"></a>
+            <a href="/" id="home"><h1 class="page-name">algaeorithm</h1></a>
+            <input type="checkbox" class="nav-toggle" id="nav-toggle">
+            <label for="nav-toggle" class="nav-toggle-label">
+            </label>
+            <nav>
+                <ul class="primary-nav">
+                    <li><a href="index.html">home</a></li>
+                    <li><a href="content.html">content</a></li>
+                    <li><a href="about.html">about</a></li>
+                    <li><a href="press.html">press</a></li>
+                    <h5><a class="nav-info" href="mailto:info@algaeorithm.com" target="_blank">info@algaeorithm.com</a><br><a class="nav-info" href="https://www.youtube.com/channel/UCtPHghFQx5i-as_V9ly1dxQ" target="_blank">YOUTUBE</a><br><br>© 2022 Algaeorithm<br>images by James Weiss<br>created by Ashwin Mukherjee & Rohan Chanani</h5>
+                </ul>
+            </nav>
         </div>
         <div id="inputInfo" class="palette">
-            <div id="top-instruction" class="top-instruction">
-                <div id="initially-visible" class="initially-visible">
-                    <h1 class="instruction">To begin, choose an option below</h1>
-                    <a onclick="changeAdvanced()" id="advanced-options" class="advanced-options">Advanced</a>
-                </div>
-                <div id="advanced-input" class="hidden">
-                    <div class="advanced-box">
-                        <div class="inner-advanced-box">
-                            <input id="time-sensitive" type="checkbox">
-                            <label for="time-sensitive" class="advanced-label">Are your images time sensitive?</label>
-                        </div>
-                        <div id="time-unit-box" class="invisible margin-five">
-                            <label for="time-unit" class="advanced-label">Unit: </label>
-                            <input type="text" id="time-unit" autocomplete="off" value="days" class="optional-time-input">
-                        </div>
-                    </div>
-                    <div class="advanced-box">
-                        <div class="inner-advanced-box">
-                            <input id="depth-sensitive" type="checkbox" checked="">
-                            <label for="depth-sensitive" class="advanced-label">Do your images all have the same depth?</label>
-                        </div>
-                        <div id="all-depth-box" class="inner-advanced-box">
-                            <label for="all-depth" class="advanced-label">Depth: </label>
-                            <input type="text" id="all-depth" class="optional-depth-input" autocomplete="off" value="0.1">
-                            <label for="all-depth" class="advanced-label">mm</label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div id="upper" class="upper" style="margin-bottom: 20vh;">
-                <div class="left">
-                    <label for="staging" class="upload-photo input-values">upload a photo</label>
-                    <input id="staging" type="file" class="hidden" accept="image/png, image/jpeg" multiple="">
-                </div>
-                <div class="right">
-                    <input type="text" autocomplete="off" maxlength="256" name="url" data-name="url" placeholder="enter a url" id="urlInput" class="enter-url input-values">
-                </div>
-            </div>
-            <div id="lower" class="hidden">
-                <div class="left-margin"></div>
-                <div class="previews" id="previews">
-                    <div id="sample-preview" class="hidden">
-                        <div class="hidden">
-                            <label class="hidden"><input type="text" autocomplete="off" class="preview-input"></label>
-                            <label class="hidden"><input type="text" autocomplete="off" class="preview-input"> mm</label>
-                        </div>
-                    </div>
-                </div>
-                <div id="analyze-button" class="analyze">
-                    <img src="static/analyze_button.svg" id="analyze-link" onclick="loadInformation()" class="analyze-button">
-                </div>
-            </div>
-        </div>
-        <div id="loader-wrapper" class="hidden">
-            <div class="loading-box">
-                <div class="loading-text">Processing images...</div>
-                <div id="loader"></div>
-                <a onclick="cancelRequest()" class="cancel-button">Cancel</a>
-            </div>
-        </div>
-        <div id="table" class="hidden">
-               <table class="csv-table" id="csv-table"></table>
-               <a download="algaeorithm_data.csv" id="download-csv" class="download-csv">download table</a>
-        </div>
-        <div id="overview" class="hidden">
-            <div class="top">
-                <div class="counts">
-                    <div class="stats-title">Cell Count (# of cells)</div>
-                    <div id="counts-stats" class="stats-info"></div>    
-                </div>          
-                <div class="concentrations">
-                    <div class="stats-title">Cell Concentration (cells / mL)</div>
-                    <div id="concentrations-stats" class="stats-info"></div>    
-                </div>
-            </div>
-            <div class="bottom">
-                <div id="counts-graphs" class="graphs">
-                    <img id="counts-graph" class="graph">
-                    <div id="counts-change" class="change-graph"></div>
-                </div>
-                <div id="concentrations-graphs" class="graphs">
-                    <img id="concentrations-graph" class="graph">
-                    <div id="concentrations-change" class="change-graph"></div>
-                  </div>
-            </div>
-        </div>
-        <div id="resultsInfo" class="hidden">
             <div class="lab">
-                <div id="visual" class="visual">
-                    <div class="img-nav" id="img-nav">
-                        <a id="lastImage" class="invisible"></a>
-                        <div id="image-number" class="image-number"></div>
-                        <a id="nextImage" class="invisible"></a>
-                    </div> 
-                    <div class="image-container">
-                        <img id="resultsImage" class="algae" onclick="clickDownload()">
-                        <a id="download-link" class="hidden"></a>
+                <div class="photos">
+                    <div class="previews">
+                        <label for="additional" class="add-photo"></label>
+                        <input id="additional" type="file" class="hidden" accept="image/png, image/jpeg" multiple>
+                        <div class="preview">
+                            <img src="https://uploads-ssl.webflow.com/611968865cc3c3243e59ac45/611db6a6c0a8b01cdbfca753_chlamydomonas_montage_2.jpg" class="preview-image"/>
+                            <button class="delete-photo"></button>
+                        </div>
                     </div>
-                    <div id="show-pictures" class="show-pictures"></div>
                 </div>
-                <div class="info">
-                    <h2 id="resultsCount" class="we-found"></h2>
-                    <h2 id="resultsConcentration" class="we-found"></h2>
+                <div class="settings">
+                    <div class="setting">
+                        <h2 class="setting-name">algae type</h2>
+                        <div class="types">
+                            <label for="clear" class="photo-type-label">
+                                <input type="radio" name="image-type" id="clear" class="hidden">
+                                <img src="chlamy square.jpg" class="photo-type"/>
+                            </label>
+                            <label for="hemocytometer" class="photo-type-label">
+                                <input type="radio" name="image-type" id="hemocytometer" class="hidden">
+                                <img src="tricornutum square.png" class="photo-type"/>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="setting">
+                        <h2 class="setting-name">depth</h2>
+                        <div class="row">
+                            <label for="consistent" class="settings-label">
+                                <input type="radio" name="depth" id="consistent" checked>
+                                <div class="radio"></div>
+                                consistent:
+                            </label>
+                            <label for="all-depth" class="settings-label">
+                                <input type="number" id="all-depth" class="settings-input" autocomplete="off" value="0.1">
+                                mm
+                            </label>
+                        </div>
+                        <div class="row">
+                            <label for="varied" class="settings-label">
+                                <input type="radio" name="depth" id="varied">
+                                <div class="radio"></div>
+                                varied
+                            </label>
+                            <label for="default-depth" class="settings-label" id="default-label"> 
+                                <input type="number" id="default-depth" class="settings-input" autocomplete="off" value="0.1">
+                                mm | default
+                            </label>
+                        </div>
+                        <div class="row">
+                            <label for="estimate" class="settings-label">
+                                <input type="radio" name="depth" id="estimate">
+                                <div class="radio"></div>
+                                estimate depth
+                            </label>
+                        </div>
+                    </div>
+                    <div class="setting">
+                        <div class="settings-label">
+                            <h2 class="setting-name">time</h2>
+                            <label for="time-sensitive" class="switch">
+                                <input type="checkbox" id="time-sensitive" class="switch_input">
+                                <div class="switch_fill"></div>
+                            </label>
+                        </div>
+                        <div class="row">
+                            <label for="time-units" class="settings-label">units:</label>
+                            <input type="text" id="time-units" class="settings-input" autocomplete="off" value="days">
+                        </div>
+                        <div class="row">
+                            <label for="time-interval" class="settings-label">interval:</label>
+                            <label for="time-interval" class="settings-label">
+                                <input type="number" id="time-interval" class="settings-input" autocomplete="off" value="1">
+                                days
+                            </label>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div id="tab-nav" class="hidden">
-            <a onclick="setTable()" id="show-table" class="tab">data table</a><a onclick="setOverview()" id="show-overview" class="tab">statistical overview</a><a onclick="displayImage(0, 'Outlines')" id="show-images" class="tab">image analysis</a>
+        <div id="analyze-button" class="analyze-button">analyze images
+            <a onclick="loadInformation()" class="hidden"></a>
         </div>
-        <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-        <script src="static/script.js"></script>
     </body>
+    <script src="static/script.js"></script>
+</body>
 </html>
-

@@ -56,14 +56,21 @@ const changeIntervalValue = () => {
 const changeTime = () => {
     document.getElementById("time-setting").setAttribute("class", "setting");
     if (document.getElementById("time-sensitive").checked && !document.getElementById("interval").checked) {
+        document.getElementById("time-heading").setAttribute("class", "advanced orange")
         for (let previewElement of document.getElementById("previews").children) {
             if (previewElement.tagName.toLowerCase() != "div") {
                 continue;
             }
             previewElement.children[1].setAttribute("class", "specific-inputs");
-            previewElement.children[1].children[0].setAttribute("class", "preview-time")
+            if (isConsistentDepth()) {    
+                previewElement.children[1].children[0].setAttribute("class", "preview-input orange full")
+            } else {
+                previewElement.children[1].children[0].setAttribute("class", "preview-input orange half-left")
+            }
+            
         }
     } else {
+        document.getElementById("time-heading").setAttribute("class", "setting-name")
         if (!document.getElementById("time-sensitive").checked) {
             document.getElementById("time-setting").setAttribute("class", "hidden");
         }
@@ -75,12 +82,17 @@ const changeTime = () => {
             if (isConsistentDepth()) {
                 previewElement.children[1].setAttribute("class", "hidden");
             }
+            else {
+                previewElement.children[1].children[1].setAttribute("class", "preview-input green full");
+            }
         }
     }
+    changeDepth();
 }
 
 const changeDepth = () => {
     if (!isConsistentDepth()) {
+        document.getElementById("depth-heading").setAttribute("class", "advanced green")
         document.getElementById("default-label").setAttribute("class", "settings-label");
         document.getElementById("all-depth-label").setAttribute("class", "hidden");
         for (let previewElement of document.getElementById("previews").children) {
@@ -88,9 +100,14 @@ const changeDepth = () => {
                 continue;
             }
             previewElement.children[1].setAttribute("class", "specific-inputs");
-            previewElement.children[1].children[1].setAttribute("class", "preview-depth")
+            if (document.getElementById("time-sensitive").checked && !document.getElementById("interval").checked) {    
+                previewElement.children[1].children[1].setAttribute("class", "preview-input green half-right");
+            } else {
+                previewElement.children[1].children[1].setAttribute("class", "preview-input green full");
+            }
         }
     } else {
+        document.getElementById("depth-heading").setAttribute("class", "setting-name")
         document.getElementById("default-label").setAttribute("class", "hidden");
         document.getElementById("all-depth-label").setAttribute("class", "settings-label");
         for (let previewElement of document.getElementById("previews").children) {
@@ -98,11 +115,14 @@ const changeDepth = () => {
                 continue;
             }
             previewElement.children[1].children[1].setAttribute("class", "hidden");
-            if (!document.getElementById("time-sensitive").checked) {
+            if (!document.getElementById("time-sensitive").checked || document.getElementById("interval").checked) {
                 previewElement.children[1].setAttribute("class", "hidden");
+            } else {
+                previewElement.children[1].children[0].setAttribute("class", "preview-input orange full");
             }
         }
     }
+    changeTime();
 }
 
 const createPreview = (imageName, imageSrc, imageType="file") => {
@@ -389,8 +409,8 @@ const checkSensitives = () => {
                 if (previewElement.id == "sample-preview" || previewElement.tagName.toLowerCase() != "div") {
                     continue;
                 }
-                if (checkIfNumber(previewElement.children[1].children[0].children[0].value)) {
-                    fileInput.append("time-"+previewElement.children[0].title, previewElement.children[1].children[0].children[0].value);
+                if (checkIfNumber(previewElement.children[1].children[0].value)) {
+                    fileInput.append("time-"+previewElement.children[0].title, previewElement.children[1].children[0].value);
                 }
             }
         }
@@ -401,8 +421,8 @@ const checkSensitives = () => {
             if (previewElement.id == "sample-preview" || previewElement.tagName.toLowerCase() != "div") {
                 continue;
             }
-            if (checkIfNumber(previewElement.children[1].children[1].children[0].value)) {
-                fileInput.append("depth-"+previewElement.children[0].title, previewElement.children[1].children[1].children[0].value);
+            if (checkIfNumber(previewElement.children[1].children[1].value)) {
+                fileInput.append("depth-"+previewElement.children[0].title, previewElement.children[1].children[1].value);
             }
             else {
                 if (!checkIfNumber(document.getElementById("default-depth").value)) {
@@ -469,5 +489,7 @@ document.addEventListener("keydown", function(event) {
 });
 document.getElementById("staging").addEventListener("change", addFileToList);
 document.getElementById("time-sensitive").addEventListener("change", changeTime);
+document.getElementById("consistent").addEventListener("change", updateDepthTimeClass)
+document.getElementById("time-sensitive").addEventListener("change", updateDepthTimeClass)
 document.getElementById("interval").addEventListener("change", changeInterval);
 document.getElementById("time-unit").addEventListener("keyup", changeIntervalValue);

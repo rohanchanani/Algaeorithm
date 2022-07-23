@@ -1,0 +1,54 @@
+.about {
+    display: flex;
+    max-width: 1800px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 1vh 1vw 1vh 1vw;
+  }
+
+  .profile {
+    display: flex;
+    flex-flow: column;
+    font-weight: 700;
+    font-size: max(1.5vh, 18px);
+    margin: 0 1vw 2vh 1vw;
+    color: #333;
+  }
+
+  .profile-pic {
+    width: 25vw;
+    border-radius: 10px;
+    margin: 0 0 1vh 0;
+    max-width: 400px;
+    min-width: 250px;
+  }
+
+  .illustration {
+    width: max(35vw, 350px);
+    margin: 3vh 1vw 1vh 1vw;
+  }
+
+  .approach {
+    font-weight: 400;
+    font-size: min(2vh, 30px);
+    width: min(80vw, 700px);
+  }
+
+  .dark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #333;
+    width: 100%;
+  }
+
+  .partner {
+    height: min(75px, 5vh);
+    margin: 10px 10px 10px 10px;
+  }
+
+  .white {
+    color: white;
+    width: 90vw;
+  }

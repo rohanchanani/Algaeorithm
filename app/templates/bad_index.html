@@ -6,19 +6,26 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Algaeorithm</title>
-        <link href="https://fonts.googleapis.com/css2?family=DM+Sans&display=swap" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet"> 
         <link rel="stylesheet" href="static/css/index.css">
-        <link rel="stylesheet" href="static/css/results.css">
-        <link rel="stylesheet" href="static/css/loading.css">
-        <link rel="stylesheet" href="static/css/stats.css">
-        <link rel="stylesheet" href="static/css/table.css">
-        <link rel="stylesheet" href="static/css/misc.css">
-        <link rel="stylesheet" href="static/css/mobile.css">       
     </head>
-    <body id="body" class="body vsc-initialized">    
+    <body class="body">    
         <div class="header">
-            <a href="/" id="algaeorithm"><h1 class="logo">Algaeorithm</h1></a>
+            <a href="/" id="algaeorithm" class="logo"></a>
+            <a href="/" id="home"><h1 class="page-name">algaeorithm</h1></a>
+            <input type="checkbox" class="nav-toggle" id="nav-toggle">
+            <label for="nav-toggle" class="nav-toggle-label">
+            </label>
+            <nav>
+                <ul class="primary-nav">
+                    <li><a href="/">home</a></li>
+                    <li><a href="/content">content</a></li>
+                    <li><a href="/about">about</a></li>
+                    <li><a href="/press">press</a></li>
+                    <h5><a class="nav-info" href="mailto:info@algaeorithm.com" target="_blank">info@algaeorithm.com</a><br><a class="nav-info" href="https://www.youtube.com/channel/UCtPHghFQx5i-as_V9ly1dxQ" target="_blank">YOUTUBE</a><br><br>© 2022 Algaeorithm<br>images by James Weiss, BLOOM Bioeconomy & Cefic<br>created by Ashwin Mukherjee & Rohan Chanani</h5>
+                </ul>
+            </nav>
         </div>
         <div id="inputInfo" class="palette">
             <div class="lab">
@@ -29,8 +36,8 @@
                         <div id="sample-preview" class="hidden">
                             <div class="hidden"></div>
                             <div class="hidden">
-                                <label class="hidden">Time: <input type="text" autocomplete="off" class="preview-input"></label>
-                                <label class="hidden">Depth: <input type="text" autocomplete="off" class="preview-input"></label>
+                                <input type="text" autocomplete="off" placeholder="time" class="hidden">
+                                <input type="text" autocomplete="off" placeholder="depth" class="hidden">
                             </div>
                         </div>
                     </div>
@@ -50,7 +57,7 @@
                         </div>
                     </div>
                     <div class="setting">
-                        <h2 class="setting-name">depth</h2>
+                        <h2 id="depth-heading" class="setting-name">depth</h2>
                         <div class="row">
                             <label for="consistent" class="settings-label" onclick="checkRadio('consistent')">
                                 <input type="radio" name="depth-sensitive" value="consistent" id="consistent" checked>
@@ -72,7 +79,7 @@
                     </div>
                     <div class="setting">
                         <div class="row title">
-                            <h2 class="setting-name">time</h2>
+                            <h2 id="time-heading" class="setting-name">time</h2>
                             <label for="time-sensitive" class="switch" onclick="checkBox('time-sensitive')">
                                 <input type="checkbox" id="time-sensitive" class="switch_input">
                                 <div class="switch_fill"></div>
@@ -99,9 +106,8 @@
         <div id="analyze-button" class="hidden" onclick="loadInformation()">analyze images</div>
         <div id="loader-wrapper" class="hidden">
             <div class="loading-box">
-                <div class="loading-text">Processing images...</div>
                 <div id="loader"></div>
-                <a onclick="cancelRequest()" class="cancel-button">Cancel</a>
+                <a onclick="cancelRequest()" class="cancel-button">cancel</a>
             </div>
         </div>
         <div id="table" class="hidden">
@@ -139,7 +145,7 @@
                         <a id="nextImage" class="invisible"></a>
                     </div> 
                     <div class="image-container">
-                        <img id="resultsImage" class="algae" onclick="clickDownload()">
+                        <img id="resultsImage" class="algae">
                         <a id="download-link" class="hidden"></a>
                     </div>
                     <div id="show-pictures" class="show-pictures"></div>
