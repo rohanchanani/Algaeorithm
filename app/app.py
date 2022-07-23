@@ -2,7 +2,7 @@ from io import BytesIO
 import boto3
 import matplotlib.pyplot as plt
 import numpy as np
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_from_directory
 from PIL import Image
 import os
 import numpy as np
@@ -391,6 +391,11 @@ def press():
 @app.route("/about")
 def about():
     return render_template("about.html")
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static', 'logos'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 @app.route('/', methods=["POST"])
 def index_post():       
