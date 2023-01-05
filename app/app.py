@@ -431,5 +431,4 @@ def index_post():
 
 @app.route("/synopsis")
 def return_synopsis():
-    with open(os.path.join("app", "static", "files", 'synopsis.pdf'), 'rb') as static_file:
-        return send_file(static_file, attachment_filename='Synopsis.pdf')
+    return send_file(os.path.join("app", "static", "files", 'synopsis.pdf'), attachment_filename='Synopsis.pdf')
