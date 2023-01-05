@@ -2,7 +2,7 @@ from io import BytesIO
 import boto3
 import matplotlib.pyplot as plt
 import numpy as np
-from flask import Flask, render_template, request, send_from_directory
+from flask import Flask, render_template, request, send_from_directory, send_file
 from PIL import Image
 import os
 import numpy as np
@@ -428,3 +428,8 @@ def index_post():
     else:
         final_data["stats"] = "No data available"
     return final_data
+
+@app.route("/synopsis")
+def return_synopsis():
+    with open(os.path.join("app", "static", "files", 'synopsis.pdf'), 'rb') as static_file:
+        return send_file(static_file, attachment_filename='Synopsis.pdf')
