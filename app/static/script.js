@@ -53,6 +53,11 @@ const changeIntervalValue = () => {
     labelElement.innerHTML = labelElement.children[0].outerHTML + " " + document.getElementById("time-units").value;
 }
 
+const updateDepthTimeClass = () => {
+    changeTime();
+
+}
+
 const changeTime = () => {
     document.getElementById("time-setting").setAttribute("class", "setting");
     if (document.getElementById("time-sensitive").checked && !document.getElementById("interval").checked) {
@@ -277,22 +282,44 @@ const displayImage = (newIndex, method)  => {
     }    
 }
 
+//const setGraph = (selectedGraph, metric) => {
+//    let graphList = Object.keys(parsedResponse["graphs"][metric]);
+//    document.getElementById(metric.toLowerCase()+"s-graph").src = parsedResponse["graphs"][metric][selectedGraph];
+//    let changeGraph = document.getElementById(metric.toLowerCase()+"s-change");
+//    changeGraph.innerHTML = "";
+//    for (let graphType of graphList) {
+//        let graphAnchor = document.createElement("a");
+//        graphAnchor.innerHTML = graphType;
+//        graphAnchor.setAttribute("onclick", "setGraph('" + graphType + "', '" + metric + "')");
+//        if (graphType==selectedGraph) {
+//            graphAnchor.setAttribute("class", "graph-button clicked");
+//        } else {
+//            graphAnchor.setAttribute("class", "graph-button");
+//        }
+//        changeGraph.appendChild(graphAnchor);
+//    }
+//}
+
 const setGraph = (selectedGraph, metric) => {
     let graphList = Object.keys(parsedResponse["graphs"][metric]);
     document.getElementById(metric.toLowerCase()+"s-graph").src = parsedResponse["graphs"][metric][selectedGraph];
     let changeGraph = document.getElementById(metric.toLowerCase()+"s-change");
-    changeGraph.innerHTML = "";
+    changeGraph.innerHTML = "<a class='download-photo ghost'>";
     for (let graphType of graphList) {
         let graphAnchor = document.createElement("a");
         graphAnchor.innerHTML = graphType;
         graphAnchor.setAttribute("onclick", "setGraph('" + graphType + "', '" + metric + "')");
         if (graphType==selectedGraph) {
-            graphAnchor.setAttribute("class", "graph-button clicked");
+            graphAnchor.setAttribute("class", "graph-type-clicked");
         } else {
-            graphAnchor.setAttribute("class", "graph-button");
+            graphAnchor.setAttribute("class", "graph-type");
         }
         changeGraph.appendChild(graphAnchor);
     }
+    changeGraph.innerHTML += "</a><a id='"+metric+"s-graph-download' class='download-photo'></a>";
+    let download_link = document.getElementById(metric+"s-graph-download");
+    download_link.setAttribute("href", parsedResponse["graphs"][metric][selectedGraph]);
+    download_link.setAttribute("download", selectedGraph+".jpg");
 }
 
 const setTable = () => {
@@ -312,31 +339,59 @@ const setOverview = () => {
         displayImage(0, "output");
         document.getElementById("tab-nav").setAttribute("class", "hidden");
     } else {
-        document.getElementById("counts-stats").innerHTML = "";
-        document.getElementById("concentrations-stats").innerHTML = "";
         let units = {"Count": " cells", "Concentration": " cells / mL"};
+        let shorthands = {"Mean":"mean", "Range":"range", "Standard Deviation":"stddev"};
         for (let metric of ["Count", "Concentration"]) {
-            let sectionDiv = document.getElementById(metric.toLowerCase()+"s-stats");
             for (let stat of ["Mean", "Range", "Standard Deviation"]) {
-                let statSection = document.createElement("div");
-                statSection.setAttribute("class", "stats-section");
-                statSection.innerHTML = stat + ": " + parsedResponse["stats"][metric][stat];
-                sectionDiv.appendChild(statSection);
+                let statSection = document.getElementById(metric.toLowerCase()+"s-"+shorthands[stat]);
+                statSection.innerHTML = parsedResponse["stats"][metric][stat];
             }
-            let medianBox = document.createElement("div");
-            medianBox.setAttribute("class", "stats-section");
-            let iqrBox = document.createElement("div");
-            iqrBox.setAttribute("class", "stats-section");
+            let medianBox = document.getElementById(metric.toLowerCase()+"s-median");
+            let iqrBox = document.getElementById(metric.toLowerCase()+"s-iqr");
             iqrList = parsedResponse["stats"][metric]["iqr"]
-            medianBox.innerHTML = "Median: " + iqrList[1];
-            iqrBox.innerHTML = "Interquartile Range: " + iqrList[2] + " - " + iqrList[0];
-            sectionDiv.appendChild(medianBox);
-            sectionDiv.appendChild(iqrBox);
+            medianBox.innerHTML = iqrList[1];
+            iqrBox.innerHTML = iqrList[2] + " - " + iqrList[0];
             let graphs = Object.keys(parsedResponse["graphs"]["Count"]);
             setGraph(graphs[0], metric);
         }
     }
 }
+
+//const setOverview = () => {
+//    changePalette("overview");
+//    document.getElementById("tab-nav").setAttribute("class", "tab-nav");
+//    document.getElementById("show-overview").setAttribute("class", "selected-tab");
+//    document.getElementById("show-images").setAttribute("class", "tab");
+//    document.getElementById("show-table").setAttribute("class", "tab");
+//    if (parsedResponse["stats"] == "No data available") {
+//        displayImage(0, "output");
+//        document.getElementById("tab-nav").setAttribute("class", "hidden");
+//    } else {
+//        document.getElementById("counts-stats").innerHTML = "";
+//        document.getElementById("concentrations-stats").innerHTML = "";
+//        let units = {"Count": " cells", "Concentration": " cells / mL"};
+//        for (let metric of ["Count", "Concentration"]) {
+//            let sectionDiv = document.getElementById(metric.toLowerCase()+"s-stats");
+//            for (let stat of ["Mean", "Range", "Standard Deviation"]) {
+//                let statSection = document.createElement("div");
+//                statSection.setAttribute("class", "stats-section");
+//                statSection.innerHTML = stat + ": " + parsedResponse["stats"][metric][stat];
+//                sectionDiv.appendChild(statSection);
+//            }
+//            let medianBox = document.createElement("div");
+//            medianBox.setAttribute("class", "stats-section");
+//            let iqrBox = document.createElement("div");
+//            iqrBox.setAttribute("class", "stats-section");
+//            iqrList = parsedResponse["stats"][metric]["iqr"]
+//            medianBox.innerHTML = "Median: " + iqrList[1];
+//            iqrBox.innerHTML = "Interquartile Range: " + iqrList[2] + " - " + iqrList[0];
+//            sectionDiv.appendChild(medianBox);
+//            sectionDiv.appendChild(iqrBox);
+//            let graphs = Object.keys(parsedResponse["graphs"]["Count"]);
+//            setGraph(graphs[0], metric);
+//        }
+//    }
+//}
 
 const addInformation = () => {
     let csvRows = parsedResponse["csv"]
@@ -452,6 +507,17 @@ const cancelRequest = () => {
     document.getElementById("loader-wrapper").setAttribute("class", "hidden");
 }
 
+const updateOverview = () => {
+    if (document.getElementById("switcher").checked) {
+        document.getElementById("counts-overview").setAttribute("class", "hidden");
+        document.getElementById("concentrations-overview").setAttribute("class", "main-overview");  
+    } else {
+        document.getElementById("concentrations-overview").setAttribute("class", "hidden");
+        document.getElementById("counts-overview").setAttribute("class", "main-overview");
+    }
+
+}
+
 const loadInformation = () => {
     if (!document.getElementById("previews").children.length) {
         alert("No images added");
@@ -489,7 +555,6 @@ document.addEventListener("keydown", function(event) {
 });
 document.getElementById("staging").addEventListener("change", addFileToList);
 document.getElementById("time-sensitive").addEventListener("change", changeTime);
-document.getElementById("consistent").addEventListener("change", updateDepthTimeClass)
-document.getElementById("time-sensitive").addEventListener("change", updateDepthTimeClass)
 document.getElementById("interval").addEventListener("change", changeInterval);
 document.getElementById("time-unit").addEventListener("keyup", changeIntervalValue);
+document.getElementById("switcher").addEventListener("change", updateOverview);

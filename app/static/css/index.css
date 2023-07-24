@@ -1359,3 +1359,204 @@ input[type='radio'] {
   .clicked {
     border-color: #333;
   }
+
+  .download-photo {
+    height: 5vh;
+    width: 5vh;
+    border-radius: 2vh;
+    background-image: url("/static/logos/download.svg");
+    background-position: center;
+    background-size: 3vh;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    transition: all 200ms ease;
+    }
+  
+  .main-overview {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    height: 80vh;
+  }
+  
+  .stat-summary {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: space-between;
+    width: 15vw;
+    max-width: 1800px;
+    height: 70vh;
+    background-color: hsla(0, 0.00%, 100.00%, 0.80);
+    border-radius: 2vw;
+    box-shadow: .1vw .1vw 1.5vw .1vw #2061702f;
+    text-align: center;
+  }
+  
+  .stat-container {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .stat-graphs {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: space-between;
+    align-items: center;
+    width: 60vw;
+    max-width: 1800px;
+    height: 70vh;
+    background-color: hsla(0, 0.00%, 100.00%, 0.80);
+    border-radius: 2vw;
+    box-shadow: .1vw .1vw 1.5vw .1vw #2061702f;
+    text-align: center;
+  }
+  
+  .stat-block {
+    display: flex;
+    flex-flow: column;
+    margin: 2vh 0 2vh 0;
+  }
+  
+  .stat {
+    font-size: min(2.5vh, 36px);
+    margin: 0;
+  }
+  
+  .stat-label {
+    font-weight: 400;
+    margin: 0;
+    color: #333;
+  }
+  
+  .stat-header {
+    font-weight: 400;
+    color: #333;
+  }
+  
+  .graph {
+    object-fit: contain;
+    border: 0.2vh solid #333;
+    flex-shrink: 1;
+    margin: 2.5vh 2.5vw;
+    cursor: crosshair;
+    width: 50vw;
+    max-width: fit-content;
+    max-height: 50vh;
+  }
+  
+  .graph-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: min(58vw, 900px);
+  }
+  
+  .graph-type {
+    border-radius: 1vh;
+    border: 0.3vh solid transparent;
+    padding: 5px 5px 5px 5px;
+    color: #333;
+    font-size: min(1.5vh, 30px);
+    transition: all 300ms ease;
+  }
+  
+  .graph-type:hover .graph-type-clicked{
+    color: white;
+    background-color: #333;
+  }
+  
+  .stat-units {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .count-concentration {
+    position: relative;
+    display: flex;
+    width: 200px;
+    height: 50px;
+    border-radius: 25px;
+    margin: 1.5vh 0 -0.5vh 0;
+  }
+  
+  .count-concentration input {
+    appearance: none;
+    width: 200px;
+    height: 50px;
+    border-radius: 25px;
+    background: hsla(0, 0.00%, 100.00%, 0.80);
+    outline: none;
+    cursor: pointer;
+  }
+  
+  .count-concentration input::before,
+  .count-concentration input::after {
+    z-index: 2;
+    position: absolute;
+    top: 56%;
+    transform: translateY(-50%);
+    font-weight: bolder;
+  }
+  
+  .count-concentration input::before {
+    content: "cells/mL";
+    left: 20px;
+  }
+  
+  .count-concentration input::after {
+    content: "count";
+    right: 20px;
+  }
+  
+  .count-concentration label{
+    z-index: 1;
+    position: absolute;
+    top: 10px;
+    bottom: 4px;
+    border-radius: 20px;
+  }
+  
+  .count-concentration input {
+    transition: 0.25s;
+  }
+  
+  .count-concentration input:checked::before {
+    color: #ffffff;
+    transition: color 0.3s;
+  }
+  
+  .count-concentration input:checked::after {
+    color: #333;
+  }
+  
+  .count-concentration input:checked +label {
+    left: 10px;
+    right: 100px;
+    background: #333;
+    transition: left 0.5s, right 0.4s 0.2s;
+  }
+  
+  .count-concentration input:not(:checked) {
+    background: hsla(0, 0.00%, 100.00%, 0.80);
+    transition: background 0.4s;
+  }
+  
+  .count-concentration input:not(:checked)::before {
+    color: #333;
+    transition: color 0.5s;
+  }
+  
+  .count-concentration input:not(:checked)::after {
+    color: #ffffff;
+    transition: color 0.5s 0.2s;
+  }
+  
+  .count-concentration input:not(:checked) +label {
+    left: 100px;
+    right: 10px;
+    background: #333;
+    transition: left 0.4s 0.2s, right 0.5s, background 0.35s;
+  }
