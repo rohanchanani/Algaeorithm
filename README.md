@@ -14,7 +14,7 @@ Algaeorithm is a web-based machine learning application now used in academic set
 ## Media
 <ul>
   <li><a href="https://algaeorithm.com">Algaeorithm application</a></li>
-  <li><a href="https://www.youtube.com/@algaeorithm301">AlgaePrize Press Release</a></li>
+  <li><a href="https://isbscience.org/news/2023/08/10/high-school-duo-named-champions-in-doe-sponsored-algaeprize-competition/">AlgaePrize Press Release</a></li>
   <li><a href="https://www.youtube.com/@algaeorithm301">Youtube Chananel</a></li>
   <li><a href="https://midpenpost.org/2022/06/12/how-a-rising-los-altos-senior-became-a-us-department-of-energy-algaeprize-finalist/">MidPeninsula Post Article</a></li>
 </ul>
