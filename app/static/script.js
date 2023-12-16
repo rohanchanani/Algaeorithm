@@ -21,8 +21,13 @@ const changeImageType = (imageType) => {
     document.getElementById("img-"+imageType).setAttribute("class", "selected-photo-type photo-type");
     if (imageType == "clear") {
         document.getElementById("img-"+"hemocytometer").setAttribute("class", "photo-type");
+        document.getElementById("img-"+"chlorella").setAttribute("class", "photo-type");
+    } else if (imageType=="chlorella") {
+        document.getElementById("img-"+"clear").setAttribute("class", "photo-type");
+        document.getElementById("img-"+"hemocytometer").setAttribute("class", "photo-type");
     } else {
         document.getElementById("img-"+"clear").setAttribute("class", "photo-type");
+        document.getElementById("img-"+"chlorella").setAttribute("class", "photo-type");
     }
 }
 
@@ -540,8 +545,10 @@ const loadInformation = () => {
     fileInput.append("url", JSON.stringify(urlToSubmit));
     if (document.getElementById("clear").checked) {
         fileInput.append("cell_type", "chlamy");
-    } else {
+    } else if (document.getElementById("hemocytometer").checked) {
         fileInput.append("cell_type", "diatom");
+    } else {
+        fileInput.append("cell_type", "chlorella");
     }
     request.open("POST", "/");
     request.send(fileInput);

@@ -37,6 +37,22 @@ def cells_fn(image):
     detections = cell_detection_model.postprocess(prediction_dict, shapes)
     return detections
 
+# Load pipeline config and build a detection model
+chlorella_configs = config_util.get_configs_from_pipeline_file(os.path.join("app", "static", "chlorella", "pipeline.config"))
+chlorella_detection_model = model_builder.build(model_config=cell_configs['model'], is_training=False)
+
+# Restore checkpoint
+chlorella_ckpt = tf.compat.v2.train.Checkpoint(model=cell_detection_model)
+chlorella_ckpt.restore(os.path.join("app", "static", "chlorella", 'ckpt-3')).expect_partial()
+
+category_index = label_map_util.create_category_index_from_labelmap(os.path.join("app", "static", "chlorella", "label_map.pbtxt"))
+
+def chlorella_fn(image):
+    image, shapes = cell_detection_model.preprocess(image)
+    prediction_dict = cell_detection_model.predict(image, shapes)
+    detections = cell_detection_model.postprocess(prediction_dict, shapes)
+    return detections
+
 #Load pipeline config and build a detection model
 diatom_configs = config_util.get_configs_from_pipeline_file(os.path.join("app", "static", "diatom", "pipeline.config"))
 diatom_detection_model = model_builder.build(model_config=diatom_configs['model'], is_training=False)
@@ -84,7 +100,7 @@ def auto_crop(image_data, threshold = 0.8):
     detections['num_detections'] = num_detections
 
     if detections["detection_scores"][0] < threshold:
-        return image_np
+        return cv2.cvtColor(image_np, cv2.COLOR_BGR2RGB)
     
     height = image_np.shape[0]
     width = image_np.shape[1]
@@ -99,7 +115,7 @@ def chlamy_concentration(cell_boxes, total_area, cell_volume=271.8, depth=0.1):
 
 def diatom_concentration(cell_boxes, image_area, cell_length, mm_depth):
     avg_length = np.mean(list(map(lambda x: ((x[2] - x[0]) ** 2 + (x[3] - x[1]) ** 2) ** 0.5, cell_boxes)))
-    return len(cell_boxes) / (((cell_length / avg_length) ** 2 * image_area) * 10 ** -9 * mm_depth)
+    return len(cell_boxes) / (((cell_length / avg_length) ** 2 * image_area) * 10 ** -9 * mm_depth + 1e-9)
 
 def intersection_over_union(box1, box2):
     box1_x1 = box1[1]
@@ -119,16 +135,20 @@ def intersection_over_union(box1, box2):
     box2_area = abs((box2_x2 - box2_x1) * (box2_y2 - box2_y1))
     return intersection / (box1_area + box2_area - intersection + 1e-6)
 
+def calc_box_area(box):
+  return abs((box[3]-box[1])*(box[2]-box[0]))
+
 def suppress_boxes(detections, confidence_threshold=0.1, iou_threshold=0.5):
     num_detections = int(detections.pop('num_detections'))
     detections = {key: value[0, :num_detections].numpy() for key, value in detections.items()}
     detections['num_detections'] = num_detections
     # detection_classes should be ints.
     detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
+    
 
     final_boxes = enumerate(detections["detection_boxes"])
 
-    final_boxes = sorted([bbox for bbox in final_boxes if detections["detection_scores"][bbox[0]] > confidence_threshold], key=lambda bbox: detections["detection_scores"][bbox[0]], reverse=True)
+    final_boxes = sorted([bbox for bbox in final_boxes if detections["detection_scores"][bbox[0]] > confidence_threshold and float(calc_box_area(bbox[1])) < 0.01], key=lambda bbox: detections["detection_scores"][bbox[0]], reverse=True)
     if len(final_boxes) < 2:
         final_boxes = list(enumerate(detections["detection_boxes"]))
     remaining_bboxes = []
@@ -136,21 +156,30 @@ def suppress_boxes(detections, confidence_threshold=0.1, iou_threshold=0.5):
         top_bbox = final_boxes.pop(0)
         final_boxes = [bbox for bbox in final_boxes if intersection_over_union(top_bbox[1], bbox[1]) < iou_threshold]
         remaining_bboxes.append(top_bbox[1])
-
+    print(remaining_bboxes)
     box_areas = list(map(lambda x: (x[3] - x[1]) * (x[2] - x[0]), remaining_bboxes))
     adjusted_bboxes = [bbox for idx, bbox in enumerate(remaining_bboxes) if abs(stats.zscore(box_areas)[idx]) < 3]
     return adjusted_bboxes
 
 def count_concentration_detections(image, cell_type, image_name, threshold=0.1, cell_volume=271.8, cell_length=16, depth=0.1):
-    cropped_image = auto_crop(image)
-    img_height = cropped_image.shape[0]
-    img_width = cropped_image.shape[1]
-    patch_size = round(np.mean(np.array([img_height, img_width])) * 0.4)
-    total_area = patch_size ** 2
-    patch_results = {}
-    width_offset = max(round((img_width - patch_size) / 2), 0)
-    height_offset = max(round((img_height - patch_size) / 2), 0)
-    img_patch = cropped_image[height_offset:min(img_height, height_offset + patch_size), width_offset:min(img_width, width_offset + patch_size), :]
+    if cell_type != 'chlorella':
+        cropped_image = auto_crop(image)
+        img_height = cropped_image.shape[0]
+        img_width = cropped_image.shape[1]
+        patch_size = round(np.mean(np.array([img_height, img_width])) * 0.4)
+        total_area = patch_size ** 2
+        patch_results = {}
+        width_offset = max(round((img_width - patch_size) / 2), 0)
+        height_offset = max(round((img_height - patch_size) / 2), 0)
+        img_patch = cropped_image[height_offset:min(img_height, height_offset + patch_size), width_offset:min(img_width, width_offset + patch_size), :]
+    else:
+        img_patch = cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)
+        patch_results = {}
+        img_height = img_patch.shape[0]
+        img_width = img_patch.shape[1]
+        total_area = img_height*img_width
+    
+    
     #image_to_upload = np.array(cv2.cvtColor(img_patch, cv2.COLOR_BGR2RGB))
     #image_to_upload = Image.fromarray(image_to_upload.astype('uint8'))
     #in_mem_file = BytesIO()
@@ -161,9 +190,10 @@ def count_concentration_detections(image, cell_type, image_name, threshold=0.1, 
     input_tensor = tf.convert_to_tensor(np.expand_dims(img_patch, 0), dtype=tf.float32)
     if cell_type=="chlamy":
         detections = cells_fn(input_tensor)
-    else:
+    elif cell_type!="chlorella":
         detections = diatom_fn(input_tensor)
-
+    else:
+        detections = chlorella_fn(input_tensor)
     patch_width = img_patch.shape[1]
     patch_height = img_patch.shape[0]
 
@@ -173,7 +203,7 @@ def count_concentration_detections(image, cell_type, image_name, threshold=0.1, 
     patch_results["patch"] = img_patch
     patch_results["detections"] = np.array(all_boxes)
     estimated_cell_count = len(scaled_boxes) * img_height * img_width / total_area
-    concentration = chlamy_concentration(scaled_boxes, total_area, cell_volume, depth) if cell_type=="chlamy" else diatom_concentration(scaled_boxes, total_area, cell_length, depth)
+    concentration = chlamy_concentration(scaled_boxes, total_area, cell_volume, depth) if cell_type=="chlamy" else diatom_concentration(scaled_boxes, total_area, cell_length, depth) if cell_type != "chlorella" else chlamy_concentration(scaled_boxes, total_area, cell_volume/2, depth)
     return estimated_cell_count, concentration, patch_results
 
 def annotate_patch(patch_results):
@@ -240,7 +270,12 @@ def load_response(key, filename, filedata, counts, concentrations, csv_rows, ima
             csv_rows[filename] = row_to_append 
             return 0
     #try: 
-    threshold = 0.5 if image_type=="chlamy" else 0.1
+    if image_type=="chlamy":
+        threshold=0.5
+    elif image_type=="chlorella":
+        threshold = 0.2
+    else:
+        threshold = 0.1
     estimated_count, concentration, patch_results = count_concentration_detections(img, image_type, filename, threshold)
     #except:
     #    final_data[key][filename]["count"] = "N/A"
@@ -380,9 +415,9 @@ def index_get():
 def health_check():
     return "200 OK"
 
-@app.route("/content")
-def content():
-    return render_template("content.html")
+#@app.route("/content")
+#def content():
+#    return render_template("content.html")
 
 @app.route("/press")
 def press():
@@ -396,6 +431,7 @@ def about():
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static', 'logos'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
 
 @app.route('/', methods=["POST"])
 def index_post():       
