@@ -18,16 +18,16 @@ const checkRadio = (radioId) => {
 
 const changeImageType = (imageType) => {
     checkRadio(imageType);
-    document.getElementById("img-"+imageType).setAttribute("class", "selected-photo-type photo-type");
+    document.getElementById("img-"+imageType).setAttribute("class", "selected-photo-type photo-type-label row");
     if (imageType == "clear") {
-        document.getElementById("img-"+"hemocytometer").setAttribute("class", "photo-type");
-        document.getElementById("img-"+"chlorella").setAttribute("class", "photo-type");
+        document.getElementById("img-"+"hemocytometer").setAttribute("class", "photo-type-label row");
+        document.getElementById("img-"+"chlorella").setAttribute("class", "photo-type-label row");
     } else if (imageType=="chlorella") {
-        document.getElementById("img-"+"clear").setAttribute("class", "photo-type");
-        document.getElementById("img-"+"hemocytometer").setAttribute("class", "photo-type");
+        document.getElementById("img-"+"clear").setAttribute("class", "photo-type-label row");
+        document.getElementById("img-"+"hemocytometer").setAttribute("class", "photo-type-label row");
     } else {
-        document.getElementById("img-"+"clear").setAttribute("class", "photo-type");
-        document.getElementById("img-"+"chlorella").setAttribute("class", "photo-type");
+        document.getElementById("img-"+"clear").setAttribute("class", "photo-type-label row");
+        document.getElementById("img-"+"chlorella").setAttribute("class", "photo-type-label row");
     }
 }
 

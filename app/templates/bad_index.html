@@ -44,7 +44,7 @@
                     </div>
                 </div>
                 <div class="settings">
-                    <div class="setting">
+                    <!--<div class="setting">
                         <h2 class="setting-name">algae type</h2>
                         <div class="types">
                             <label for="clear" class="photo-type-label" onclick="changeImageType('clear')">
@@ -60,6 +60,22 @@
                                 <img src="static/logos/chlorella_square.jpg" class="photo-type" id="img-chlorella"/>
                             </label>
                         </div>
+                    </div>
+                -->
+                    <div class="setting">
+                        <h2 class="setting-name">algae type</h2>
+                        <label id="img-clear" for="clear" class="selected-photo-type photo-type-label row" onclick="changeImageType('clear')">
+                            Chlamydomonas
+                            <input type="radio" name="image-type" id="clear" class="hidden" checked>
+                        </label>
+                        <label id="img-hemocytometer" for="hemocytometer" class="photo-type-label row" onclick="changeImageType('hemocytometer')">
+                            Phaeodactylum
+                            <input type="radio" name="image-type" id="hemocytometer" class="hidden">
+                        </label>
+                        <label id="img-chlorella" for="chlorella" class="photo-type-label row" onclick="changeImageType('chlorella')">
+                            Chlorella
+                            <input type="radio" name="image-type" id="chlorella" class="hidden">
+                        </label>
                     </div>
                     <div class="setting">
                         <h2 id="depth-heading" class="setting-name">depth</h2>

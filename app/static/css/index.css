@@ -1552,3 +1552,27 @@ input[type='radio'] {
     background: #333;
     transition: left 0.4s 0.2s, right 0.5s, background 0.35s;
   }
+
+  .photo-type-label, .selected-photo-type {
+    font-style: italic;
+    font-size: max(1.5vh, 18px);
+    cursor: pointer;
+    justify-content: center;
+    margin: 1vh 1vw 1vh 1vw;
+    border: 2px solid #333;
+    border-radius: 1vw;
+    transition: all 300ms ease;
+  }
+ 
+ 
+  .photo-type-label:hover, .selected-photo-type {
+    background-color: #333;
+    color: #ffffff;
+  }
+ 
+ 
+  .photo-type-label::selection {
+    background-color: #333;
+    color: #ffffff;
+  }
+ 
