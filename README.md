@@ -1,7 +1,7 @@
 # Algaeorithm
 
 ## Project Overview
-Algaeorithm is a web-based machine learning application now used in academic settings to analyze images of algae cells for bioenergy education and research. It is funded by the U.S. Department of Energy and Silicon Valley Clean Energy. The application uses vanilla JavaScript for the frontend and the Python framework Flask for the backend, and it is deployed through AWS <a href="https://algaeorithm.com/">here</a>. The image analysis algorithm uses a TensorFlow convolutional neural network and a manual implementation of the YOLOv1 algorithm with Jax and Flax.
+Algaeorithm is a web-based machine learning application used in academic settings to analyze images of algae cells for bioenergy education and research. It is funded by the U.S. Department of Energy and Silicon Valley Clean Energy. The application uses vanilla JavaScript for the frontend and the Python framework Flask for the backend, and it is deployed through AWS <a href="https://algaeorithm.com/">here</a>. The image analysis algorithm uses a TensorFlow convolutional neural network and a manual implementation of the YOLOv1 algorithm with Jax and Flax.
 
 ## Accolades
 
